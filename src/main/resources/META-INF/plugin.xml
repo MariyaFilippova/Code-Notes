@@ -1,18 +1,13 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>org.me.Notes</id>
-    <name>Notes</name>
-    <vendor email="me@yourcompany.com" url="https://www.me.com">Me</vendor>
-    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
-         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
-    <description>Notes plugin for your favourite fgfggwehfgefgferfgerhffgfgerf code</description>
+    <name>Code Notes</name>
+    <vendor email="maxa.spb6@gmail.com">Mariia Filippova</vendor>
+    <description>Select code and leave notes directly in the IDE. Post your daily notes in Slack via the Notes bot.</description>
     <depends>com.intellij.modules.platform</depends>
     <actions>
-        <action id="org.me.notes.actions.CopyCodeAction" class="org.me.notes.actions.CopyCodeAction"
-                text="Copy Code"/>
-        <action id="org.me.notes.actions.DeleteNoteAction" class="org.me.notes.actions.DeleteNoteAction"
-                text="Delete Note"/>
+        <action id="org.me.notes.actions.CopyCodeAction" class="org.me.notes.actions.CopyCodeAction"/>
+        <action id="org.me.notes.actions.DeleteNoteAction" class="org.me.notes.actions.DeleteNoteAction"/>
 
         <group id="popup@NotesMenu">
             <reference ref="org.me.notes.actions.CopyCodeAction"/>
@@ -29,4 +24,5 @@
         <editorAppearanceConfigurable instance="org.me.notes.settings.NotesHighlightingSettings"/>
         <postStartupActivity implementation="org.me.notes.slack.SlackSecretProjectActivity"/>
     </extensions>
+    <resource-bundle>messages.Notes</resource-bundle>
 </idea-plugin>
