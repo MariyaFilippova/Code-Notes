@@ -38,9 +38,10 @@ class Note(
             }
             return@let ""
         } ?: ""
+        val path = virtualFile.path.substringAfterLast("/") + line
         return ":star: _${time.substringBefore(" ")}_\n" +
                 "${prepareText()}\n" +
-                "<http://localhost:3001?file=${virtualFile.path}&line=$line|`${virtualFile.path}$line`>\n" +
+                "<jetbrains://idea/navigate/reference?project=${project.name}&path=$path|`$path`>\n" +
                 "```${prepareCode()}```"
     }
 

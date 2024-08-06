@@ -26,7 +26,6 @@
         <toolWindow anchor="right" id="Notes" doNotActivateOnStart="false"
                     factoryClass="org.me.notes.ui.NotesToolWindowFactory"/>
         <highlightingPassFactory implementation="org.me.notes.editor.NotesHighlightingPassFactory"/>
-        <postStartupActivity implementation="org.me.notes.slack.CodeNavigationProjectActivity"/>
         <editorAppearanceConfigurable instance="org.me.notes.settings.NotesHighlightingSettings"/>
     </extensions>
 </idea-plugin>
