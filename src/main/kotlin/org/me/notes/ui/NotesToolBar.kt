@@ -48,6 +48,7 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
     private inner class MyMouseListener : EditorMouseListener {
         override fun mouseReleased(event: EditorMouseEvent) {
             myInlay?.dispose()
+            if (activeInlay.get(editor) != null) return
             if (editor.selectionModel.hasSelection()) {
                 myInlay = createInlay()
             }
@@ -85,6 +86,7 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
         override fun keyPressed(e: KeyEvent?) {
             if (e?.keyCode == VK_SHIFT) {
                 myInlay?.dispose()
+                if (activeInlay.get(editor) != null) return
                 if (myFile == null || !editor.selectionModel.hasSelection()) return
                 val inlay = createComponentInlay()
                 activeInlay.set(editor, inlay)
