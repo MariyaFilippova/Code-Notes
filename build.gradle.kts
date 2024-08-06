@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+
 plugins {
   id("java")
   id("org.jetbrains.kotlin.jvm") version "2.0.0"
@@ -14,11 +16,12 @@ repositories {
 }
 
 group = "org.me"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 dependencies {
   intellijPlatform {
     create("IU", "242.20224-EAP-CANDIDATE-SNAPSHOT", useInstaller = false)
+    testFramework(TestFrameworkType.Plugin.Java)
   }
   testImplementation("junit:junit:4.13.2")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
@@ -27,10 +30,14 @@ dependencies {
   implementation("com.squareup.okhttp3:okhttp-tls:4.12.0")
 }
 
+intellijPlatform {
+  instrumentCode.set(false)
+}
+
 tasks {
   withType<JavaCompile> {
-    sourceCompatibility = "17"
-    targetCompatibility = "17"
+    sourceCompatibility = "21"
+    targetCompatibility = "21"
   }
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = "21"
