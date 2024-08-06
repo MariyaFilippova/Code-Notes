@@ -2,6 +2,7 @@ package org.me.notes.editor
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.ComponentInlayAlignment
 import com.intellij.openapi.editor.ComponentInlayRenderer
 import com.intellij.openapi.editor.Editor
@@ -18,6 +19,7 @@ import com.intellij.openapi.observable.util.whenDisposed
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
 import com.intellij.ui.codeFloatingToolbar.CodeFloatingToolbar
 import org.me.notes.NotesBundle
@@ -34,7 +36,7 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
         val activeInlay = Key.create<Inlay<ComponentInlayRenderer<NotesInlayPanel>>>("activeInlay")
     }
 
-    private val myFile = PsiManager.getInstance(project).findFile(editor.virtualFile)
+    private val myFile = ReadAction.compute<PsiElement?, Throwable> { PsiManager.getInstance(project).findFile(editor.virtualFile) }
 
     private val myMouseListener = MyMouseListener()
     private val myKeyBoardListener = MyKeyBoardListener()
