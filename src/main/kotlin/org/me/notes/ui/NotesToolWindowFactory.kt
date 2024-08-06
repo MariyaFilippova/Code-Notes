@@ -1,5 +1,6 @@
 package org.me.notes.ui
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -16,6 +17,7 @@ class NotesToolWindowFactory : ToolWindowFactory, DumbAware {
             override fun notesChanged() {
                 toolWindow.contentManager.removeAllContents(true)
                 addContent(toolWindow.contentManager, project)
+                DaemonCodeAnalyzer.getInstance(project).restart()
             }
         })
     }
