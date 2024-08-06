@@ -4,17 +4,15 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiManager
 import com.intellij.ui.EditorTextField
+import org.me.notes.editor.NotesToolBar.Companion.activeInlay
 import org.me.notes.notes.Note
 import org.me.notes.storage.NotesStorage
-import org.me.notes.editor.NotesToolBar.Companion.activeInlay
 import org.me.notes.ui.NotesToolWindowPanel.Companion.pinIcon
-import org.me.notes.editor.textAttributes
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.function.Supplier
@@ -40,14 +38,12 @@ class NoteSave(val component: EditorTextField, val editor: Editor, val project: 
         val selectedCode = editor.selectionModel.selectedText ?: throw Exception("empty selected code")
         val code = spaces + selectedCode
 
-        val highlighter = editor.markupModel.addRangeHighlighter(
-            editor.selectionModel.selectionStart,
-            editor.selectionModel.selectionEnd, 0, textAttributes(), HighlighterTargetArea.EXACT_RANGE
-        )
+        val rangeMarker =
+            editor.document.createRangeMarker(editor.selectionModel.selectionStart, editor.selectionModel.selectionEnd)
 
         val formatter = DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy")
         val currentTime = LocalDateTime.now().format(formatter)
-        val note = Note(component.text, code, project, editor.virtualFile, highlighter, currentTime)
+        val note = Note(component.text, code, project, editor.virtualFile, rangeMarker, currentTime)
 
         NotesStorage.getInstance(project).addNote(note, editor)
     }

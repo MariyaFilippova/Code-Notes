@@ -19,8 +19,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiManager
-import com.intellij.ui.JBColor
 import com.intellij.ui.codeFloatingToolbar.CodeFloatingToolbar
+import org.me.notes.settings.NotesHighlightingConfiguration
 import org.me.notes.ui.NotesInlayPanel
 import java.awt.Color
 import java.awt.event.KeyAdapter
@@ -124,10 +124,9 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
     }
 }
 
+@Suppress("UseJBColor")
 fun textAttributes(): TextAttributes = with(TextAttributes()) {
-    backgroundColor = JBColor(
-        Color(237, 235, 251),
-        Color(56, 59, 57)
-    )
+    val settings = NotesHighlightingConfiguration.getInstance.state
+    backgroundColor = Color(settings.r.toInt(), settings.g.toInt(), settings.b.toInt())
     this
 }

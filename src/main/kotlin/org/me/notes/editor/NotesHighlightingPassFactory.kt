@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.me.notes.settings.NotesHighlightingConfiguration
 import org.me.notes.storage.NotesStorage
 
 class NotesHighlightingPassFactory : TextEditorHighlightingPassFactoryRegistrar, TextEditorHighlightingPassFactory,
@@ -35,6 +36,8 @@ class NotesHighlightingPass(
     override fun doCollectInformation(progress: ProgressIndicator) {}
 
     override fun doApplyInformationToEditor() {
+        val settings = NotesHighlightingConfiguration.getInstance.state
+
         NotesStorage.getInstance(file.project).notes[file.virtualFile]?.forEach { note ->
             val rangeMarker = note.rangeMarker ?: return@forEach
             val start = rangeMarker.startOffset
@@ -45,8 +48,12 @@ class NotesHighlightingPass(
             val existingInlay = editor.inlayModel.getAfterLineEndElementsInRange(0, document.text.length - 1)
                 .filter { it.renderer is HintRenderer }
                 .find { (it.renderer as HintRenderer).text == note.getRepresentableText() }
+
             val existingHighlighter =
                 editor.markupModel.allHighlighters.find { it.startOffset == start && it.endOffset == end }
+
+            if (!settings.enableInlay) existingInlay?.dispose()
+            if (!settings.enableHighlighting) existingHighlighter?.dispose()
 
             if (!isValidRangeMarker(rangeMarker)) {
                 existingHighlighter?.dispose()
@@ -54,9 +61,11 @@ class NotesHighlightingPass(
                 return@forEach
             }
 
-            if (existingInlay != null) return@forEach
-            editor.inlayModel.addAfterLineEndElement(rangeMarker.endOffset, true, HintRenderer(text))
-            if (existingHighlighter != null) return@forEach
+            if (existingInlay == null && settings.enableInlay) {
+                editor.inlayModel.addAfterLineEndElement(rangeMarker.endOffset, true, HintRenderer(text))
+            }
+
+            if (existingHighlighter != null || !settings.enableHighlighting) return@forEach
             editor.markupModel.addRangeHighlighter(start, end, 0, textAttributes(), HighlighterTargetArea.EXACT_RANGE)
         }
     }
