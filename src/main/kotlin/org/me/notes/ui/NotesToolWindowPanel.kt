@@ -203,8 +203,6 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel(), 
 
 fun getModel(project: Project): DefaultTreeModel? {
     val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Notes") ?: return null
-    if (!toolWindow.isVisible) return null
-
     toolWindow.contentManager.contents.forEach {
         val panel = it.component as NotesToolWindowPanel? ?: return@forEach
         return panel.myTreeModel
