@@ -48,28 +48,30 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
 
     internal class NotesConverter : Converter<MutableMap<VirtualFile, List<Note>>>() {
         companion object {
-            private const val NOTE_SEPARATOR = "@"
-            private const val NOTES_SEPARATOR = "%"
-            private const val VALUES_SEPARATOR = "*"
-            private const val SEPARATOR = "&"
+            private const val NOTE_SEPARATOR = "<note_option>"
+            private const val NOTES_SEPARATOR = "<note>"
+            private const val VALUES_SEPARATOR = "<value>"
+            private const val SEPARATOR = "<entry>"
         }
 
         private fun noteToString(note: Note): String {
             val start = note.rangeMarker.startOffset
             val end = note.rangeMarker.endOffset
             val file = note.virtualFile.path
-            return note.text + NOTE_SEPARATOR + note.code + NOTE_SEPARATOR + file + NOTE_SEPARATOR + start + NOTE_SEPARATOR + end
+            val time = note.time
+            return note.text + NOTE_SEPARATOR + note.code + NOTE_SEPARATOR + time + NOTE_SEPARATOR + file + NOTE_SEPARATOR + start + NOTE_SEPARATOR + end
         }
 
         private fun noteFromString(value: String): Note {
             val array = value.split(NOTE_SEPARATOR)
-            val file = VfsUtil.findFile(Paths.get(array[2]), true) ?: error("Cannot find ${array[0]} file")
+            val file = VfsUtil.findFile(Paths.get(array[3]), true) ?: error("Cannot find ${array[0]} file")
             val project = ProjectManager.getInstance().openProjects.first()
-            val start = array[3].toInt()
-            val end = array[4].toInt()
+            val start = array[4].toInt()
+            val end = array[5].toInt()
             if (start > end) error("Invalid range marker for note ${array[0]}")
             val document = file.findDocument() ?: error("Cannot find document for ${file.path}")
-            return Note(array[0], array[1], project, file, document.createRangeMarker(start, end))
+            if (document.textLength < end) error("Invalid range marker for note ${array[0]}")
+            return Note(array[0], array[1], project, file, document.createRangeMarker(start, end), array[2])
         }
 
         override fun toString(map: MutableMap<VirtualFile, List<Note>>): String {

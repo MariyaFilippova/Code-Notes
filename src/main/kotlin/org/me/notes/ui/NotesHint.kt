@@ -11,11 +11,13 @@ import com.intellij.ui.HintHint
 import com.intellij.ui.LightweightHint
 import com.intellij.ui.components.JBTextArea
 import com.intellij.util.ui.JBUI
+import java.time.LocalDateTime
 import org.me.notes.Note
 import org.me.notes.NotesStorage
 import org.me.notes.editor.NotesIconRenderer
 import java.awt.BorderLayout
 import java.awt.Point
+import java.time.format.DateTimeFormatter
 import javax.swing.JButton
 import javax.swing.JPanel
 
@@ -66,7 +68,9 @@ class NotesHint(private val editor: Editor, private val project: Project, privat
             editor.selectionModel.selectionEnd, 0, textAttributes(), HighlighterTargetArea.EXACT_RANGE
         )
 
-        val note = Note(myTextArea.text, selectedCode, project, editor.virtualFile, highlighter)
+        val formatter = DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy")
+        val currentTime = LocalDateTime.now().format(formatter)
+        val note = Note(myTextArea.text, selectedCode, project, editor.virtualFile, highlighter, currentTime)
 
         NotesStorage.getInstance(project).state.addNote(editor.virtualFile, note)
         highlighter.gutterIconRenderer = NotesIconRenderer(editor, note)

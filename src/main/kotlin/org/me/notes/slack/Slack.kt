@@ -9,6 +9,8 @@ import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import org.me.notes.NotesStorage
 import org.me.notes.editor.NotesHighlightingPassFactory
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 private const val token = ""
 private const val botUserId = "D079BF0D4BY"
@@ -44,12 +46,13 @@ private fun postMessage(message: String) {
 }
 
 fun postNotesIntoSlackBot(project: Project) {
-    val message = NotesStorage.getInstance(project).state.notes.entries.joinToString("\n") { (_, notes) ->
-        notes.joinToString("\n") { note ->
-            return@joinToString ":heart: *${note.text}*\n" +
-                    "<${note.virtualFile.path}|${note.virtualFile.name}> \n" +
-                    "```${note.code}```"
-        }
+    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+    val currentTime = LocalDateTime.now().format(formatter)
+
+    val notes = NotesStorage.getInstance(project).state.notes
+    val title = "*Notes for $currentTime in ${project.name}*"
+    val message = notes.entries.joinToString("\n") { (_, notes) ->
+        notes.joinToString("\n") { it.getMessage() }
     }
-    postMessage(message)
+    postMessage("$title\n$message")
 }
