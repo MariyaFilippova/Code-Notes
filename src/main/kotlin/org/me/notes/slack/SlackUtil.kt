@@ -1,5 +1,6 @@
 package org.me.notes.slack
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.util.ImageLoader
@@ -73,8 +74,8 @@ fun postNotesIntoSlackBot(project: Project, invokeOnCompletion: () -> Unit) {
     }
 }
 
-fun createIcon(path: String): Icon? {
-    val imgURL = NotesStorage::class.java.getResource(path) ?: return null
-    val image = ImageLoader.loadFromUrl(imgURL) ?: return null
-    return JBImageIcon(ImageLoader.scaleImage(image, 16, 16))
+fun createIcon(path: String): Icon {
+    val imgURL = NotesStorage::class.java.getResource(path) ?: return AllIcons.General.Information
+    val image = ImageLoader.loadFromUrl(imgURL) ?: return AllIcons.General.Information
+    return JBImageIcon(ImageLoader.scaleImage(image, 18, 18))
 }
