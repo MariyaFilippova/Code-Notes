@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.Toggleable
 import com.intellij.openapi.project.DumbAwareAction
-import com.intellij.psi.impl.source.tree.injected.changesHandler.range
+import com.intellij.refactoring.suggested.range
 import org.me.notes.NotesStorage
 import org.me.notes.editor.NotesIconRenderer.Companion.NOTE
 import org.me.notes.ui.NotesHint
