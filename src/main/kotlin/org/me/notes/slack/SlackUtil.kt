@@ -2,6 +2,8 @@ package org.me.notes.slack
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import com.intellij.util.ImageLoader
+import com.intellij.util.ui.JBImageIcon
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
@@ -18,6 +20,7 @@ import org.me.notes.NotesStorage
 import org.me.notes.editor.NotesHighlightingPassFactory
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.swing.Icon
 
 private const val token = ""
 private const val botUserId = "D079BF0D4BY"
@@ -68,4 +71,10 @@ fun postNotesIntoSlackBot(project: Project, invokeOnCompletion: () -> Unit) {
     }.invokeOnCompletion {
         invokeOnCompletion()
     }
+}
+
+fun createIcon(path: String): Icon? {
+    val imgURL = NotesStorage::class.java.getResource(path) ?: return null
+    val image = ImageLoader.loadFromUrl(imgURL) ?: return null
+    return JBImageIcon(ImageLoader.scaleImage(image, 16, 16))
 }

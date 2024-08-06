@@ -3,21 +3,23 @@ package org.me.notes.ui
 import com.intellij.codeInsight.navigation.openFileWithPsiElement
 import com.intellij.icons.AllIcons
 import com.intellij.ide.actions.OpenFileAction
+import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.fileTypes.FileTypeRegistry
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
+import com.intellij.ui.EditorTextField
+import com.intellij.ui.PopupHandler
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SpinningProgressIcon
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.JBUI
 import org.me.notes.File
 import org.me.notes.Note
 import org.me.notes.NotesStorage
-import org.me.notes.editor.createIcon
 import org.me.notes.slack.SLACK_ICON
+import org.me.notes.slack.createIcon
 import org.me.notes.slack.postNotesIntoSlackBot
 import java.awt.Component
 import java.awt.Font
@@ -42,16 +44,15 @@ class NotesToolWindowPanel(private val project: Project) {
         isVisible = false
     }
 
-    private var myNotesTextArea = JBTextArea().apply {
-        lineWrap = true
+    private var myNotesTextArea = EditorTextField().apply {
         isVisible = false
-        isEditable = false
     }
 
     init {
         myTreeModel = DefaultTreeModel(buildNotesTree())
         myNotesTree = Tree(myTreeModel)
         myNotesTree.isRootVisible = false
+        PopupHandler.installPopupMenu(myNotesTree, "popup@NotesMenu", ActionPlaces.BOOKMARKS_VIEW_POPUP)
         myNotesTree.selectionModel.selectionMode = SINGLE_TREE_SELECTION
         myNotesTree.addTreeSelectionListener { _ ->
             val notes = myNotesTree.getSelectedNodes(Note::class.java, null)
@@ -91,7 +92,8 @@ class NotesToolWindowPanel(private val project: Project) {
 
     private fun showNoteText(note: Note) {
         myNotesTextArea.isVisible = true
-        myNotesTextArea.text = note.text
+        myNotesTextArea.fileType = FileTypeRegistry.getInstance().getFileTypeByFileName(note.virtualFile.name)
+        myNotesTextArea.text = "// ${note.text}\n${note.code}"
     }
 
     private fun navigateToCode(note: Note) {

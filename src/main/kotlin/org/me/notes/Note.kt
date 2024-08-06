@@ -22,13 +22,13 @@ class Note(
         val line = rangeMarker?.let {
             if (it.isValid) {
                 readAction {
-                    virtualFile.findDocument()?.getLineNumber(it.startOffset)
+                    ":" + virtualFile.findDocument()?.getLineNumber(it.startOffset)
                 }
             }
         } ?: ""
         return ":star: _${time.substringBefore(" ")}_\n" +
                 "${prepareText()}\n" +
-                "`${virtualFile.path}:$line` \n" +
+                "`${virtualFile.path}$line` \n" +
                 "```${code}```"
     }
 

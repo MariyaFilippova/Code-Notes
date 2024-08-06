@@ -14,7 +14,6 @@ import com.intellij.util.ui.JBUI
 import java.time.LocalDateTime
 import org.me.notes.Note
 import org.me.notes.NotesStorage
-import org.me.notes.editor.NotesIconRenderer
 import java.awt.BorderLayout
 import java.awt.Point
 import java.time.format.DateTimeFormatter
@@ -73,7 +72,6 @@ class NotesHint(private val editor: Editor, private val project: Project, privat
         val note = Note(myTextArea.text, selectedCode, project, editor.virtualFile, highlighter, currentTime)
 
         NotesStorage.getInstance(project).state.addNote(editor.virtualFile, note)
-        highlighter.gutterIconRenderer = NotesIconRenderer(editor, note)
 
         myTextArea.text = ""
         myHint.hide()
