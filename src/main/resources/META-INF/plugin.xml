@@ -2,11 +2,11 @@
 <idea-plugin>
     <id>org.me.Notes</id>
     <name>Notes</name>
-    <vendor email="me@yourcompany.com" url="https://www.yourcompany.com">Me</vendor>
+    <vendor email="me@yourcompany.com" url="https://www.me.com">Me</vendor>
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
-    <description>Notes plugin for your favourite code</description>
+    <description>Notes plugin for your favourite fgfggwehfgefgferfgerhffgfgerf code</description>
     <depends>com.intellij.modules.platform</depends>
     <actions>
         <action id="org.me.notes.editor.EditNoteAction" class="org.me.notes.editor.EditNoteAction"
@@ -29,5 +29,6 @@
         <toolWindow anchor="right" id="Notes" doNotActivateOnStart="false"
                     factoryClass="org.me.notes.ui.NotesToolWindowFactory"/>
         <highlightingPassFactory implementation="org.me.notes.editor.NotesHighlightingPassFactory"/>
+        <postStartupActivity implementation="org.me.notes.slack.CodeNavigationProjectActivity"/>
     </extensions>
 </idea-plugin>

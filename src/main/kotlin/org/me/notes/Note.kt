@@ -21,14 +21,15 @@ class Note(
     suspend fun getMessage(): String {
         val line = rangeMarker?.let {
             if (it.isValid) {
-                readAction {
+                return@let readAction {
                     ":" + virtualFile.findDocument()?.getLineNumber(it.startOffset)
                 }
             }
+            return@let ""
         } ?: ""
         return ":star: _${time.substringBefore(" ")}_\n" +
                 "${prepareText()}\n" +
-                "`${virtualFile.path}$line` \n" +
+                "<http://localhost:3001?file=${virtualFile.path}&line=$line|`${virtualFile.path}$line`>\n" +
                 "```${code}```"
     }
 
