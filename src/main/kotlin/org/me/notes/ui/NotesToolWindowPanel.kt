@@ -10,17 +10,12 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.JBUI
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.me.notes.File
 import org.me.notes.Note
 import org.me.notes.NotesStorage
-import postNotesIntoSlackBot
 import java.awt.Component
 import java.awt.Font
 import javax.swing.BoxLayout
-import javax.swing.JButton
 import javax.swing.JPanel
 import javax.swing.JTree
 import javax.swing.tree.DefaultMutableTreeNode
@@ -32,7 +27,6 @@ class NotesToolWindowPanel(private val project: Project) {
     private var myNotesTreePanel: JBScrollPane
     private var myNotesTree: Tree = Tree()
     private var myTreeModel: DefaultTreeModel
-    private var mySyncSlackButton: JButton
     private var myNotesTextArea = JBTextArea().apply {
         lineWrap = true
         isVisible = false
@@ -56,20 +50,11 @@ class NotesToolWindowPanel(private val project: Project) {
         }
         myNotesTree.cellRenderer = MyCellRenderer()
         myNotesTreePanel = ScrollPaneFactory.createScrollPane(myNotesTree, true) as JBScrollPane
-        mySyncSlackButton = JButton("Sync with slack").apply {
-            val coroutineScope = CoroutineScope(Dispatchers.Default)
-            addActionListener {
-                coroutineScope.launch {
-                    postNotesIntoSlackBot(project)
-                }
-            }
-        }
     }
 
     fun getPanel(): JPanel {
         val containerPanel = JPanel()
         containerPanel.setLayout(BoxLayout(containerPanel, BoxLayout.Y_AXIS))
-        containerPanel.add(mySyncSlackButton)
         containerPanel.add(myNotesTreePanel)
         containerPanel.add(ScrollPaneFactory.createScrollPane(myNotesTextArea, true) as JBScrollPane)
         return containerPanel
