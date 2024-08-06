@@ -12,16 +12,20 @@ class Note(
     val code: String,
     val project: Project,
     val virtualFile: VirtualFile,
-    var rangeMarker: RangeMarker,
+    var rangeMarker: RangeMarker?,
     val time: String
 ) : DefaultMutableTreeNode() {
 
     override fun isLeaf() = true
 
     suspend fun getMessage(): String {
-        if (!rangeMarker.isValid) return ""
-        val line = readAction { virtualFile.findDocument()?.getLineNumber(rangeMarker.startOffset) }
-        rangeMarker.startOffset
+        val line = rangeMarker?.let {
+            if (it.isValid) {
+                readAction {
+                    virtualFile.findDocument()?.getLineNumber(it.startOffset)
+                }
+            }
+        } ?: ""
         return ":star: _${time.substringBefore(" ")}_\n" +
                 "${prepareText()}\n" +
                 "`${virtualFile.path}:$line` \n" +

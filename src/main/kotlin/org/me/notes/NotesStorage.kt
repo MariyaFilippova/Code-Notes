@@ -55,8 +55,8 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
         }
 
         private fun noteToString(note: Note): String {
-            val start = note.rangeMarker.startOffset
-            val end = note.rangeMarker.endOffset
+            val start = note.rangeMarker?.startOffset ?: -1
+            val end = note.rangeMarker?.endOffset ?: -1
             val file = note.virtualFile.path
             val time = note.time
             return note.text + NOTE_SEPARATOR + note.code + NOTE_SEPARATOR + time + NOTE_SEPARATOR + file + NOTE_SEPARATOR + start + NOTE_SEPARATOR + end
@@ -70,8 +70,8 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
             val end = array[5].toInt()
             if (start > end) error("Invalid range marker for note ${array[0]}")
             val document = file.findDocument() ?: error("Cannot find document for ${file.path}")
-            if (document.textLength < end) error("Invalid range marker for note ${array[0]}")
-            return Note(array[0], array[1], project, file, document.createRangeMarker(start, end), array[2])
+            val rangeMarker = if (document.textLength < end || start == -1 || end == -1) null else document.createRangeMarker(start, end)
+            return Note(array[0], array[1], project, file, rangeMarker, array[2])
         }
 
         override fun toString(map: MutableMap<VirtualFile, List<Note>>): String {

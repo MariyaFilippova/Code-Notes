@@ -36,7 +36,7 @@ class DeleteNoteAction : DumbAwareAction(), Toggleable {
         val virtualFile = note.virtualFile
         NotesStorage.getInstance(project).state.deleteNote(virtualFile, note)
         editor.markupModel.allHighlighters.forEach {
-            if (it.range == note.rangeMarker.range) it.dispose()
+            if (it.range == note.rangeMarker?.range) it.dispose()
         }
         project.messageBus.syncPublisher(NotesStorage.NotesChangedListener.NOTES_CHANGED_TOPIC)
             .notesChanged()

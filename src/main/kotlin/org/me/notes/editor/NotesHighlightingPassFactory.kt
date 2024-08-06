@@ -33,9 +33,10 @@ class NotesHighlightingPass(
 
     override fun doApplyInformationToEditor() {
         NotesStorage.getInstance(file.project).state.notes[file.virtualFile]?.forEach { note ->
-            if (!note.rangeMarker.isValid) return@forEach
-            val start = note.rangeMarker.startOffset
-            val end = note.rangeMarker.endOffset
+            val rangeMarker = note.rangeMarker ?: return@forEach
+            if (!rangeMarker.isValid) return@forEach
+            val start = rangeMarker.startOffset
+            val end = rangeMarker.endOffset
 
             val existingHighlighter = editor.markupModel.allHighlighters.find {
                 it.startOffset == start && it.endOffset == end

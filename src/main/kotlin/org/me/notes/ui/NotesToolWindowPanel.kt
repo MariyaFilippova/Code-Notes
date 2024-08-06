@@ -95,9 +95,10 @@ class NotesToolWindowPanel(private val project: Project) {
     }
 
     private fun navigateToCode(note: Note) {
+        if (note.rangeMarker == null || !note.rangeMarker!!.isValid) return
         OpenFileAction.openFile(note.virtualFile, note.project)
         val psiFile = PsiManager.getInstance(note.project).findFile(note.virtualFile) ?: return
-        val element = psiFile.findElementAt(note.rangeMarker.startOffset) ?: return
+        val element = psiFile.findElementAt(note.rangeMarker!!.startOffset) ?: return
         openFileWithPsiElement(element, searchForOpen = true, requestFocus = true)
     }
 
