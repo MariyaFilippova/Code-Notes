@@ -41,8 +41,12 @@ class NotesIconRenderer(private val editor: Editor, private val note: Note) : Du
     }
 
     private fun createNotesIcon(): Icon? {
-        val imgURL = javaClass.getResource(NOTE_ICON) ?: return null
-        val image = ImageLoader.loadFromUrl(imgURL) ?: return null
-        return JBImageIcon(ImageLoader.scaleImage(image, 16, 16))
+        return createIcon(NOTE_ICON)
     }
+}
+
+fun createIcon(path: String): Icon? {
+    val imgURL = NotesIconRenderer::class.java.getResource(path) ?: return null
+    val image = ImageLoader.loadFromUrl(imgURL) ?: return null
+    return JBImageIcon(ImageLoader.scaleImage(image, 16, 16))
 }

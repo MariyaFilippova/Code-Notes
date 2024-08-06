@@ -5,6 +5,7 @@ import com.intellij.ide.actions.OpenFileAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
 import com.intellij.ui.ScrollPaneFactory
+import com.intellij.ui.SpinningProgressIcon
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextArea
@@ -13,6 +14,8 @@ import com.intellij.util.ui.JBUI
 import org.me.notes.File
 import org.me.notes.Note
 import org.me.notes.NotesStorage
+import org.me.notes.editor.createIcon
+import org.me.notes.slack.SLACK_ICON
 import org.me.notes.slack.postNotesIntoSlackBot
 import java.awt.Component
 import java.awt.Font
@@ -29,7 +32,13 @@ class NotesToolWindowPanel(private val project: Project) {
     private var myNotesTreePanel: JBScrollPane
     private var myNotesTree: Tree = Tree()
     private var myTreeModel: DefaultTreeModel
-    private var mySyncSlackButton: JButton
+
+    private val mySyncSlackButton = JButton("Sync with slack", createIcon(SLACK_ICON))
+    @Suppress("UnstableApiUsage")
+    private val mySpinner = JBLabel(SpinningProgressIcon()).apply {
+        isVisible = false
+    }
+
     private var myNotesTextArea = JBTextArea().apply {
         lineWrap = true
         isVisible = false
@@ -53,9 +62,12 @@ class NotesToolWindowPanel(private val project: Project) {
         }
         myNotesTree.cellRenderer = MyCellRenderer()
         myNotesTreePanel = ScrollPaneFactory.createScrollPane(myNotesTree, true) as JBScrollPane
-        mySyncSlackButton = JButton("Sync with slack").apply {
+        mySyncSlackButton.apply {
             addActionListener {
-                postNotesIntoSlackBot(project)
+                mySpinner.isVisible = true
+                postNotesIntoSlackBot(project) {
+                    mySpinner.isVisible = false
+                }
             }
         }
     }
@@ -63,7 +75,12 @@ class NotesToolWindowPanel(private val project: Project) {
     fun getPanel(): JPanel {
         val containerPanel = JPanel()
         containerPanel.setLayout(BoxLayout(containerPanel, BoxLayout.Y_AXIS))
-        containerPanel.add(mySyncSlackButton)
+        val syncPanel = JPanel().apply {
+            setLayout(BoxLayout(this, BoxLayout.LINE_AXIS))
+        }
+        syncPanel.add(mySyncSlackButton)
+        syncPanel.add(mySpinner)
+        containerPanel.add(syncPanel)
         containerPanel.add(myNotesTreePanel)
         containerPanel.add(ScrollPaneFactory.createScrollPane(myNotesTextArea, true) as JBScrollPane)
         return containerPanel

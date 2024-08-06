@@ -23,6 +23,7 @@ private const val token = ""
 private const val botUserId = "D079BF0D4BY"
 private val logger = Logger.getInstance(NotesHighlightingPassFactory::class.java)
 private val coroutineScope = CoroutineScope(Dispatchers.Default)
+const val SLACK_ICON = "/icons/slack.svg"
 
 private suspend fun postMessage(message: String) {
     val client = HttpClient(CIO.create())
@@ -51,7 +52,7 @@ private suspend fun postMessage(message: String) {
     }
 }
 
-fun postNotesIntoSlackBot(project: Project) {
+fun postNotesIntoSlackBot(project: Project, invokeOnCompletion: () -> Unit) {
     coroutineScope.launch {
         val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         val currentTime = LocalDateTime.now().format(formatter)
@@ -64,5 +65,7 @@ fun postNotesIntoSlackBot(project: Project) {
             val message = notes.asFlow().map { it.getMessage() }.toList().joinToString("\n")
             postMessage("$title\n$message")
         }
+    }.invokeOnCompletion {
+        invokeOnCompletion()
     }
 }
