@@ -38,7 +38,7 @@ import javax.swing.tree.DefaultTreeCellRenderer
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION
 
-class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel()  {
+class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel() {
     companion object {
         private val pinIcon = createIcon("/icons/pin.svg")
         const val LABEL_LENGTH = 10
@@ -48,6 +48,7 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel()  
     private var myTreeModel: DefaultTreeModel
 
     private val mySyncSlackButton = JButton("Sync with slack", createIcon(SLACK_ICON))
+
     @Suppress("UnstableApiUsage")
     private val mySpinner = JBLabel(SpinningProgressIcon()).apply {
         isVisible = false
@@ -75,12 +76,16 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel()  
         PopupHandler.installPopupMenu(myNotesTree, "popup@NotesMenu", ActionPlaces.BOOKMARKS_VIEW_POPUP)
         myNotesTree.selectionModel.selectionMode = SINGLE_TREE_SELECTION
         myNotesTree.addTreeSelectionListener { _ ->
-            val notes = myNotesTree.getSelectedNodes(Note::class.java, null)
-            if (notes.isEmpty()) {
+            val node = myNotesTree.getSelectedNodes(DefaultMutableTreeNode::class.java, null).firstOrNull()
+            if (node == null) {
                 myNotesCodeTextArea.isVisible = false
                 return@addTreeSelectionListener
             }
-            val note = notes.first()
+            if (node is File) {
+                myNotesCodeTextArea.isVisible = false
+                return@addTreeSelectionListener
+            }
+            val note = node as Note
             navigateToCode(note)
             showNoteText(note)
         }
@@ -107,12 +112,10 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel()  
 
     fun getPanel(): JPanel {
         return panel {
-            row {
-                panel {
-                    row {
-                        cell(mySyncSlackButton)
-                        cell(mySpinner)
-                    }
+            indent {
+                row {
+                    cell(mySyncSlackButton).align(Align.FILL)
+                    cell(mySpinner)
                 }
             }
             row {
@@ -132,8 +135,11 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel()  
     private fun showNoteText(note: Note) {
         myNotesCodeTextArea.isVisible = true
         myNotesCodeTextArea.fileType = FileTypeRegistry.getInstance().getFileTypeByFileName(note.virtualFile.name)
-        val commentedNote = note.text.lines().joinToString("\n") {"// $it" }
-        myNotesCodeTextArea.document = EditorFactory.getInstance().createDocument("$commentedNote\n${note.code}")
+
+        val commentedNote = note.text.lines().joinToString("\n") { "// $it" }
+        val preparedText = note.prepareCode()
+
+        myNotesCodeTextArea.document = EditorFactory.getInstance().createDocument("$commentedNote\n\n$preparedText")
         myNotesCodeTextArea.document.setReadOnly(true)
     }
 

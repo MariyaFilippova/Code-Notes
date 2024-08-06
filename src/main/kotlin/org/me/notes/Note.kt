@@ -46,12 +46,12 @@ class Note(
         return text.trim().replace(">", "&gt;").split("\n").joinToString("\n") { ">$it" }
     }
 
-    private fun prepareCode(): String {
+    fun prepareCode(): String {
         val minCommonIndent =
             code.lines().filter(String::isNotBlank)
                 .minOfOrNull { line -> line.indexOfFirst { !it.isWhitespace() }.let { if (it == -1) line.length else it } }
                 ?: 0
-        return code.lines().joinToString("\n") { line -> line.substring(minCommonIndent) }
+        return code.lines().joinToString("\n") { line -> if (line.length > minCommonIndent) line.substring(minCommonIndent) else line }
     }
 }
 
