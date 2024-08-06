@@ -20,6 +20,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiManager
 import com.intellij.ui.codeFloatingToolbar.CodeFloatingToolbar
+import org.me.notes.NotesBundle
 import org.me.notes.settings.NotesHighlightingConfiguration
 import org.me.notes.ui.NotesInlayPanel
 import java.awt.Color
@@ -61,7 +62,7 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
         myInlay = editor.inlayModel.addAfterLineEndElement(
             editor.selectionModel.selectionEnd,
             false,
-            HintRenderer("Press %s to leave note".format(KeymapUtil.getKeyText(VK_SHIFT)))
+            HintRenderer(NotesBundle.message("notes.inlay.press.to.leave.note", KeymapUtil.getKeyText(VK_SHIFT)))
         )
     }
 

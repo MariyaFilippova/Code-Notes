@@ -10,6 +10,7 @@ import com.intellij.ui.dsl.builder.Cell
 import com.intellij.ui.dsl.builder.Panel
 import com.intellij.ui.dsl.builder.bindIntText
 import com.intellij.ui.dsl.builder.bindSelected
+import org.me.notes.NotesBundle
 import java.awt.Color
 import java.awt.Dimension
 import javax.swing.JPanel
@@ -36,16 +37,16 @@ class NotesHighlightingSettings : UiDslUnnamedConfigurable.Simple() {
         panel {
             row {
                 enable =
-                    checkBox("Enable highlighting of code by Notes plugin").bindSelected(settings::enableHighlighting)
+                    checkBox(NotesBundle.message("notes.settings.enable.highlighting")).bindSelected(settings::enableHighlighting)
                         .onApply { rerunDaemon() }
             }
 
             row {
-                checkBox("Enable suggestion inlays by Notes plugin").bindSelected(settings::enableInlay)
+                checkBox(NotesBundle.message("notes.settings.enable.inlays")).bindSelected(settings::enableInlay)
                     .onApply { rerunDaemon() }
             }
 
-            row("Highlighting color RGB:") {
+            row(NotesBundle.message("notes.settings.highlighting.color")) {
                 r = intTextField(0..255).bindIntText(settings::r).onChanged {
                     if (it.text.isNotEmpty()) panel.component.background = color()
                 }.onApply { rerunDaemon() }
@@ -59,7 +60,7 @@ class NotesHighlightingSettings : UiDslUnnamedConfigurable.Simple() {
                     preferredSize = Dimension(20, 20)
                     background = color()
                 }
-                button("Restore Defaults") {
+                button(NotesBundle.message("notes.settings.restore.defaults")) {
                     r.applyToComponent {
                         text = defaultHighlightingColor.red.toString()
                     }

@@ -22,6 +22,7 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
+import org.me.notes.NotesBundle
 import org.me.notes.notes.File
 import org.me.notes.notes.Note
 import org.me.notes.slack.createIcon
@@ -50,7 +51,7 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel(), 
     private var myNotesTree: Tree = Tree()
     var myTreeModel: DefaultTreeModel
 
-    private val mySyncSlackButton = JButton("Sync with slack", slackIcon)
+    private val mySyncSlackButton = JButton(NotesBundle.message("notes.slack.post.in.slack"), slackIcon)
     private val mySpinner = JBLabel(SpinningProgressIcon()).apply { isVisible = false }
 
     private val myNotesCodeTextArea: EditorTextField = object : EditorTextField(project, PLAIN_TEXT) {

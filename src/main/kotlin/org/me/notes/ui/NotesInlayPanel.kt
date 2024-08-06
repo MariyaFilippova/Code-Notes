@@ -21,6 +21,7 @@ import com.intellij.util.ui.JBEmptyBorder
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
 import org.jetbrains.annotations.NonNls
+import org.me.notes.NotesBundle
 import org.me.notes.actions.NoteClose
 import org.me.notes.actions.NoteSave
 import java.awt.Dimension
@@ -76,7 +77,7 @@ class NotesInlayPanel(val editor: Editor, val project: Project) : JPanel(), Disp
                 it.settings.isPaintSoftWraps = false
             }
             setFontInheritedFromLAF(true)
-            setPlaceholder("Leave your note")
+            setPlaceholder(NotesBundle.message("notes.inlay.leave.your.note"))
             background = myBackground
             border = JBUI.Borders.empty()
             isOpaque = false

@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiManager
 import com.intellij.ui.EditorTextField
+import org.me.notes.NotesBundle
 import org.me.notes.editor.NotesToolBar.Companion.activeInlay
 import org.me.notes.notes.File
 import org.me.notes.notes.Note
@@ -21,7 +22,7 @@ import java.util.function.Supplier
 import javax.swing.tree.DefaultMutableTreeNode
 
 class NoteSave(val component: EditorTextField, val editor: Editor, val project: Project) :
-    DumbAwareAction(Supplier { "Save Note" }, pinIcon) {
+    DumbAwareAction(Supplier { NotesBundle.message("notes.action.save.note") }, pinIcon) {
 
     init {
         registerCustomShortcutSet(
@@ -65,7 +66,8 @@ class NoteSave(val component: EditorTextField, val editor: Editor, val project: 
     }
 }
 
-class NoteClose(component: EditorTextField, val editor: Editor) : DumbAwareAction(Supplier { "Close" }) {
+class NoteClose(component: EditorTextField, val editor: Editor) :
+    DumbAwareAction(Supplier { NotesBundle.message("notes.action.close") }) {
 
     init {
         registerCustomShortcutSet(
