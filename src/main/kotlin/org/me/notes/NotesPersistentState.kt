@@ -20,7 +20,7 @@ class NotesPersistentState: SimplePersistentStateComponent<NotesPersistentState.
         }
 
         fun deleteNote(file: VirtualFile, note: Note) {
-            notes.computeIfPresent(file, { _, n -> n.minus(note) })
+            notes.computeIfPresent(file) { _, n -> n.minus(note) }
             if (notes[file] != null && notes[file]!!.isEmpty()) {
                 notes.remove(file)
             }

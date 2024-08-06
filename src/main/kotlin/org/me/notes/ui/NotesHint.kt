@@ -3,7 +3,6 @@ package org.me.notes.ui
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.hint.HintManagerImpl
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.project.Project
@@ -21,10 +20,6 @@ import javax.swing.JButton
 import javax.swing.JPanel
 
 class NotesHint(private val editor: Editor, private val project: Project, private val note: Note? = null) : Disposable {
-    companion object {
-        private val logger = Logger.getInstance(NotesToolBar::class.java)
-    }
-
     private val myFile = PsiManager.getInstance(project).findFile(editor.virtualFile)
 
     private val myTextArea = JBTextArea(2, 2).apply {
