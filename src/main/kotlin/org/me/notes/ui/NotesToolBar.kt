@@ -1,6 +1,5 @@
 package org.me.notes.ui
 
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.hint.HintManagerImpl
 import com.intellij.openapi.Disposable
@@ -28,7 +27,7 @@ import java.awt.event.KeyEvent.VK_SHIFT
 import javax.swing.JButton
 import javax.swing.JPanel
 
-class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
+class NotesToolBar(val editor: Editor, private val project: Project) : Disposable {
     companion object {
         private val logger = Logger.getInstance(NotesToolBar::class.java)
     }
@@ -42,6 +41,7 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
     private val myTextArea = JBTextArea(2, 2).apply {
         lineWrap = true
     }
+
     private val myHint = LightweightHint(getPanel()).apply {
         setForceShowAsPopup(true)
         setResizable(true)
@@ -81,18 +81,11 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
 
         val note = Note(myTextArea.text, selectedCode, project, editor.virtualFile, highlighter)
 
-        val notes = NotesPersistentState.getInstance(project).state.notes
-        notes.compute(editor.virtualFile) { _, v -> v?.plus(note) ?: listOf(note) }
+        NotesPersistentState.getInstance(project).state.addNote(editor.virtualFile, note)
 
         myTextArea.text = ""
         myHint.hide()
         project.messageBus.syncPublisher(NotesPersistentState.NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
-        DaemonCodeAnalyzer.getInstance(project).restart(myFile)
-    }
-
-    private fun textAttributes(): TextAttributes = with(TextAttributes()) {
-        backgroundColor = JBColor(Color(250, 240, 255), JBColor.LIGHT_GRAY)
-        this
     }
 
     override fun dispose() {
@@ -102,7 +95,7 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
         myHint.hide()
     }
 
-    private fun showHint() {
+    fun showHint() {
         val point = editor.offsetToXY(editor.selectionModel.selectionEnd)
         val hintInfo = HintHint(editor, Point())
         HintManagerImpl.getInstanceImpl().showGutterHint(
@@ -135,4 +128,9 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
             }
         }
     }
+}
+
+fun textAttributes(): TextAttributes = with(TextAttributes()) {
+    backgroundColor = JBColor(Color(250, 240, 255), JBColor.LIGHT_GRAY)
+    this
 }

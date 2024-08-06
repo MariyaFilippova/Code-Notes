@@ -10,7 +10,7 @@ class Note(
     val code: String,
     val project: Project,
     val virtualFile: VirtualFile,
-    val rangeHighlighter: RangeHighlighter
+    var rangeHighlighter: RangeHighlighter
 ) : DefaultMutableTreeNode() {
 
     override fun isLeaf() = true

@@ -8,10 +8,26 @@
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description>Notes plugin for your favourite code</description>
     <depends>com.intellij.modules.platform</depends>
+    <actions>
+        <action id="org.me.notes.editor.EditNoteAction" class="org.me.notes.editor.EditNoteAction"
+                text="Edit Note"/>
+        <action id="org.me.notes.editor.CopyCodeAction" class="org.me.notes.editor.CopyCodeAction"
+                text="Copy Code"/>
+        <action id="org.me.notes.editor.DeleteNoteAction" class="org.me.notes.editor.DeleteNoteAction"
+                text="Delete Note"/>
+
+        <group id="popup@NotesMenu">
+            <reference ref="org.me.notes.editor.EditNoteAction"/>
+            <reference ref="org.me.notes.editor.CopyCodeAction"/>
+            <reference ref="org.me.notes.editor.DeleteNoteAction"/>
+            <separator/>
+            <add-to-group group-id="EditorGutterPopupMenu" anchor="before" relative-to-action="EditorToggleUseSoftWraps"/>
+        </group>
+    </actions>
     <extensions defaultExtensionNs="com.intellij">
         <textEditorCustomizer implementation="org.me.notes.editor.NotesTextEditorCustomizer"/>
-        <codeInsight.lineMarkerProvider implementationClass="org.me.notes.editor.NotesLineMarkerProvider" language="ANY"/>
         <toolWindow anchor="right" id="Notes" doNotActivateOnStart="false"
                     factoryClass="org.me.notes.ui.NotesToolWindowFactory"/>
+        <highlightingPassFactory implementation="org.me.notes.editor.NotesHighlightingPassFactory"/>
     </extensions>
 </idea-plugin>

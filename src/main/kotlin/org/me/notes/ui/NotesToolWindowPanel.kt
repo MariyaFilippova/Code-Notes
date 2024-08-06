@@ -4,7 +4,6 @@ import com.intellij.codeInsight.navigation.openFileWithPsiElement
 import com.intellij.ide.actions.OpenFileAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
-import com.intellij.ui.JBColor
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
@@ -33,10 +32,6 @@ class NotesToolWindowPanel(private val project: Project) {
         lineWrap = true
         isVisible = false
         isEditable = false
-    }
-
-    private var myCustomNotesTextArea = JBTextArea().apply {
-        lineWrap = true
     }
 
     init {
