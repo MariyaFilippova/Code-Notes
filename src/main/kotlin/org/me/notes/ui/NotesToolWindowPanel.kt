@@ -40,7 +40,7 @@ import javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION
 
 class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel() {
     companion object {
-        private val pinIcon = createIcon("/icons/pin.svg")
+        val pinIcon = createIcon("/icons/pin.svg")
         const val LABEL_LENGTH = 10
     }
 
