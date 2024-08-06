@@ -9,6 +9,7 @@ import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiManager
+import com.intellij.testFramework.utils.vfs.getDocument
 import com.intellij.ui.EditorTextField
 import org.me.notes.Note
 import org.me.notes.NotesStorage
@@ -39,7 +40,10 @@ class NoteSave(val component: EditorTextField, val editor: Editor, val project: 
         val file = PsiManager.getInstance(project).findFile(editor.virtualFile)
         if (file == null || component.text.isEmpty()) return
 
+        val spaces = " ".repeat(editor.caretModel.visualPosition.column)
         val selectedCode = editor.selectionModel.selectedText ?: throw Exception("empty selected code")
+        val code = spaces + selectedCode
+
         val highlighter = editor.markupModel.addRangeHighlighter(
             editor.selectionModel.selectionStart,
             editor.selectionModel.selectionEnd, 0, textAttributes(), HighlighterTargetArea.EXACT_RANGE
@@ -47,7 +51,7 @@ class NoteSave(val component: EditorTextField, val editor: Editor, val project: 
 
         val formatter = DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy")
         val currentTime = LocalDateTime.now().format(formatter)
-        val note = Note(component.text, selectedCode, project, editor.virtualFile, highlighter, currentTime)
+        val note = Note(component.text, code, project, editor.virtualFile, highlighter, currentTime)
 
         NotesStorage.getInstance(project).state.addNote(editor.virtualFile, note)
 
