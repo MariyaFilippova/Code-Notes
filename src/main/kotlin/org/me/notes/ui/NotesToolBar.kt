@@ -53,6 +53,9 @@ class NotesToolBar(val editor: Editor, project: Project) : Disposable {
 }
 
 fun textAttributes(): TextAttributes = with(TextAttributes()) {
-    backgroundColor = JBColor(Color(250, 240, 255), JBColor.LIGHT_GRAY)
+    backgroundColor = JBColor(
+        Color(250, 240, 255),
+        Color(40, 4, 44)
+    )
     this
 }
