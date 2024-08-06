@@ -141,5 +141,14 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
 
         logger.debug("notes were deleted: ${file.path}")
         state.changeNotesState()
+
+        //clean ui
+        val editor = FileEditorManagerEx.getInstanceEx(project).allEditors.find {
+            val editor = EditorUtil.getEditorEx(it) ?: return@find false
+            return@find editor.virtualFile == file
+        } ?: return
+        EditorUtil.getEditorEx(editor)?.markupModel?.allHighlighters?.forEach { it.dispose() }
+        val document = file.findDocument() ?: return
+        EditorUtil.getEditorEx(editor)?.inlayModel?.getAfterLineEndElementsInRange(0, document.textLength - 1)?.forEach {it.dispose()}
     }
 }

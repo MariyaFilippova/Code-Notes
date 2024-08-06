@@ -59,6 +59,9 @@ class NoteSave(val component: EditorTextField, val editor: Editor, val project: 
             model.insertNodeInto(fileNode, root, 0)
         }
         model.insertNodeInto(note, fileNode, 0)
+        if (root.childCount == 1 && fileNode.childCount == 1) {
+            model.reload()
+        }
     }
 }
 
