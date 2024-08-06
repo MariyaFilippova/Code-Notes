@@ -124,11 +124,13 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel() {
                     (parent.parent as JBScrollPane).horizontalScrollBarPolicy = JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER
                 }
             }
-            row {
-                scrollCell(myNotesCodeTextArea).align(Align.FILL).applyToComponent {
-                    (parent.parent as JBScrollPane).border = JBUI.Borders.empty()
-                }
-            }.resizableRow()
+            indent {
+                row {
+                    scrollCell(myNotesCodeTextArea).align(Align.FILL).applyToComponent {
+                        (parent.parent as JBScrollPane).border = JBUI.Borders.empty()
+                    }
+                }.resizableRow()
+            }
         }
     }
 
