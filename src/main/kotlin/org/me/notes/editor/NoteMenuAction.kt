@@ -17,8 +17,11 @@ import java.awt.datatransfer.StringSelection
 
 class EditNoteAction : DumbAwareAction() {
     override fun actionPerformed(e: AnActionEvent) {
-        val editor = e.dataContext.getData(CommonDataKeys.EDITOR) ?: return
         val note = getSelectedNote(e) ?: return
+        val project = e.project ?: return
+
+        val fileEditor = FileEditorManagerEx.getInstanceEx(project).selectedEditor ?: return
+        val editor = EditorUtil.getEditorEx(fileEditor) ?: return
         NotesHint(editor, note.project, note).showHint()
     }
 }

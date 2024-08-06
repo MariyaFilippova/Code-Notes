@@ -80,7 +80,7 @@ class NotesHint(private val editor: Editor, private val project: Project, privat
 
     private fun editNote() {
         if (note == null) return
-        note.text = myTextArea.text
+        NotesStorage.getInstance(project).state.editNote(note, myTextArea.text)
         myTextArea.text = ""
         myHint.hide()
         project.messageBus.syncPublisher(NotesStorage.NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
