@@ -1,7 +1,11 @@
+package org.me.notes.slack
+
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.thisLogger
+import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
@@ -12,16 +16,35 @@ import kotlin.io.path.Path
 
 class ConnectionHandler(val project: Project, port: Int) : NanoHTTPD("127.0.0.1", port), Disposable {
     companion object {
-        private val logger = org.slf4j.LoggerFactory.getLogger(ConnectionHandler::class.java)
+        val logger = Logger.getInstance(ConnectionHandler::class.java)
     }
 
     override fun serve(session: IHTTPSession): Response {
-        val file = session.parms["file"]
-        if (file == null) logger.error("file was not found")
-        val line = session.parms["line"]?.trim(':') ?: ""
-        val virtualFile = VfsUtil.findFile(Path(file!!), false)
-        if (virtualFile == null) logger.error("virtual file was not found")
-        val offset = FileDocumentManager.getInstance().getDocument(virtualFile!!)!!.getLineStartOffset(line.toInt())
+        val file = session.parms["≈file"]
+        if (file == null) {
+            logger.info("file $file was not found")
+            return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "file $file was not found")
+        }
+
+        val virtualFile = VfsUtil.findFile(Path(file), false)
+        if (virtualFile == null) {
+            logger.info("virtual file $file was not found")
+            return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "virtual file $file was not found")
+        }
+
+        val document = ReadAction.nonBlocking<Document> { FileDocumentManager.getInstance().getDocument(virtualFile) }
+            .executeSynchronously()
+        if (document == null) {
+            logger.info("document for file $file was not found")
+            return newFixedLengthResponse(
+                Response.Status.NOT_FOUND,
+                MIME_PLAINTEXT,
+                "document for file $file was not found"
+            )
+        }
+
+        val offset = session.parms["line"]?.trim(':')?.toInt()?.let { document.getLineStartOffset(it) } ?: 0
+
         ApplicationManager.getApplication().invokeLater {
             FileEditorManager.getInstance(project).openTextEditor(OpenFileDescriptor(project, virtualFile, offset), true)
             ProjectUtil.focusProjectWindow(project, true)
@@ -42,12 +65,11 @@ fun startServer(project: Project) {
             localServer.start()
             server = localServer
             return@forEach
-        }
-        catch (e: Exception) {
-            ConnectionHandler.thisLogger().info("port $it doesn't work: ${e.message}")
+        } catch (e: Exception) {
+            ConnectionHandler.logger.info("port $it doesn't work: ${e.message}")
         }
     }
     if (server == null) {
-        ConnectionHandler.thisLogger().error("unable to start server")
+        ConnectionHandler.logger.error("unable to start server")
     }
 }

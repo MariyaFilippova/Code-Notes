@@ -1,4 +1,4 @@
-package org.me.notes.ui
+package org.me.notes.editor
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.Disposable
@@ -16,10 +16,12 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.observable.util.whenDisposed
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiManager
 import com.intellij.ui.JBColor
 import com.intellij.ui.codeFloatingToolbar.CodeFloatingToolbar
+import org.me.notes.ui.NotesInlayPanel
 import java.awt.Color
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -47,23 +49,23 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
 
     private inner class MyMouseListener : EditorMouseListener {
         override fun mouseReleased(event: EditorMouseEvent) {
-            myInlay?.dispose()
-            if (activeInlay.get(editor) != null) return
-            if (editor.selectionModel.hasSelection()) {
-                myInlay = createInlay()
-            }
+            createHintInlay()
         }
     }
 
-    private fun createInlay(): Inlay<HintRenderer>? {
-        return editor.inlayModel.addAfterLineEndElement(
+    private fun createHintInlay() {
+        myInlay?.dispose()
+
+        if (!canCreateInlay()) return
+
+        myInlay = editor.inlayModel.addAfterLineEndElement(
             editor.selectionModel.selectionEnd,
             false,
             HintRenderer("Press %s to leave note".format(KeymapUtil.getKeyText(VK_SHIFT)))
         )
     }
 
-    private fun createComponentInlay(): Inlay<ComponentInlayRenderer<NotesInlayPanel>>? {
+    private fun createComponentInlay() {
         val disabled = CodeFloatingToolbar.isTemporarilyDisabled()
         CodeFloatingToolbar.temporarilyDisable()
 
@@ -79,26 +81,24 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
             CodeFloatingToolbar.temporarilyDisable(disabled)
             component.dispose()
         }
-        return inlay
+
+        activeInlay.set(editor, inlay)
     }
 
     private inner class MyKeyBoardListener : KeyAdapter() {
         override fun keyPressed(e: KeyEvent?) {
             if (e?.keyCode == VK_SHIFT) {
                 myInlay?.dispose()
-                if (activeInlay.get(editor) != null) return
-                if (myFile == null || !editor.selectionModel.hasSelection()) return
-                val inlay = createComponentInlay()
-                activeInlay.set(editor, inlay)
+
+                if (!canCreateInlay()) return
+
+                createComponentInlay()
             }
         }
 
         override fun keyReleased(e: KeyEvent?) {
-            myInlay?.dispose()
-            if (activeInlay.get(editor) != null) return
             if (e?.keyCode == VK_SHIFT) {
-                if (myFile == null || !editor.selectionModel.hasSelection()) return
-                myInlay = createInlay()
+                createHintInlay()
             }
         }
     }
@@ -112,9 +112,15 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
     override fun dispose() {
         editor.contentComponent.removeKeyListener(myKeyBoardListener)
         editor.selectionModel.removeSelectionListener(mySelectionListener)
+
         myInlay?.dispose()
-        activeInlay.get(editor)?.dispose()
+        val inlay = activeInlay.get(editor) ?: return
+        Disposer.dispose(inlay)
         activeInlay.set(editor, null)
+    }
+
+    private fun canCreateInlay(): Boolean {
+        return activeInlay.get(editor) == null && myFile != null && editor.selectionModel.hasSelection()
     }
 }
 

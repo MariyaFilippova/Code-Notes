@@ -1,11 +1,10 @@
-package org.me.notes
+package org.me.notes.notes
 
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findDocument
-import org.me.notes.ui.NotesToolWindowPanel.Companion.LABEL_LENGTH
 import javax.swing.tree.DefaultMutableTreeNode
 import kotlin.text.isWhitespace
 
@@ -17,17 +16,20 @@ class Note(
     var rangeMarker: RangeMarker?,
     val time: String
 ) : DefaultMutableTreeNode() {
+    companion object {
+        const val LABEL_LENGTH = 10
+    }
 
     override fun isLeaf() = true
 
-    fun getRepresentableText() : String {
+    fun getRepresentableText(): String {
         if (text.length > LABEL_LENGTH) {
             return text.substring(0, LABEL_LENGTH) + "..."
         }
         return text
     }
 
-    suspend fun getMessage(): String {
+    suspend fun getSlackMessage(): String {
         val line = rangeMarker?.let {
             if (it.isValid) {
                 return@let readAction {
@@ -48,10 +50,15 @@ class Note(
 
     fun prepareCode(): String {
         val minCommonIndent =
-            code.lines().filter(String::isNotBlank)
-                .minOfOrNull { line -> line.indexOfFirst { !it.isWhitespace() }.let { if (it == -1) line.length else it } }
+            code.lines()
+                .filter(String::isNotBlank)
+                .minOfOrNull { line ->
+                    line.indexOfFirst { !it.isWhitespace() }.let { if (it == -1) line.length else it }
+                }
                 ?: 0
-        return code.lines().joinToString("\n") { line -> if (line.length > minCommonIndent) line.substring(minCommonIndent) else line }
+        return code.lines().joinToString("\n") {
+            line -> if (line.length > minCommonIndent) line.substring(minCommonIndent) else line
+        }
     }
 }
 

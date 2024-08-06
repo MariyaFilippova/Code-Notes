@@ -32,7 +32,7 @@ import kotlin.math.min
 
 class NotesInlayPanel(val editor: Editor, val project: Project) : JPanel(), Disposable, DataProvider {
     companion object {
-        const val PLACE = "notes.inlay.panel"
+        const val ACTION_PLACE = "notes.inlay.panel"
     }
 
     private val myPanel = BorderLayoutPanel()
@@ -54,11 +54,13 @@ class NotesInlayPanel(val editor: Editor, val project: Project) : JPanel(), Disp
             )
         }
     }
+
     private val myBackground = editor.colorsScheme.defaultBackground
 
     init {
         border = JBEmptyBorder(20)
         background = myBackground
+
         myPanel.apply {
             border = BorderFactory.createCompoundBorder(
                 RoundedLineBorder(JBColor.GRAY, 15, 1),
@@ -67,6 +69,7 @@ class NotesInlayPanel(val editor: Editor, val project: Project) : JPanel(), Disp
             isOpaque = false
             background = myBackground
         }
+
         myTextArea.apply {
             addSettingsProvider {
                 it.settings.isUseSoftWraps = true
@@ -80,7 +83,7 @@ class NotesInlayPanel(val editor: Editor, val project: Project) : JPanel(), Disp
         }
 
         val group = DefaultActionGroup(NoteSave(myTextArea, editor, project), NoteClose(myTextArea, editor))
-        val button = ActionToolbarImpl(PLACE, group, true)
+        val button = ActionToolbarImpl(ACTION_PLACE, group, true)
             .apply { targetComponent = this }
             .component.apply {
                 border = JBUI.Borders.empty()
@@ -89,8 +92,10 @@ class NotesInlayPanel(val editor: Editor, val project: Project) : JPanel(), Disp
                 isOpaque = false
                 size = Dimension(10, 10)
             }
+
         myPanel.addToCenter(myTextArea)
         myPanel.addToRight(button)
+
         add(myPanel)
         layout = NotesLayoutManager(editor, editor.caretModel.offset)
     }

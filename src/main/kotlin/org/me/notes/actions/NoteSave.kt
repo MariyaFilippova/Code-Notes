@@ -9,13 +9,12 @@ import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiManager
-import com.intellij.testFramework.utils.vfs.getDocument
 import com.intellij.ui.EditorTextField
-import org.me.notes.Note
-import org.me.notes.NotesStorage
-import org.me.notes.ui.NotesToolBar.Companion.activeInlay
+import org.me.notes.notes.Note
+import org.me.notes.storage.NotesStorage
+import org.me.notes.editor.NotesToolBar.Companion.activeInlay
 import org.me.notes.ui.NotesToolWindowPanel.Companion.pinIcon
-import org.me.notes.ui.textAttributes
+import org.me.notes.editor.textAttributes
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.function.Supplier
@@ -31,9 +30,6 @@ class NoteSave(val component: EditorTextField, val editor: Editor, val project: 
 
     override fun actionPerformed(e: AnActionEvent) {
         saveNote()
-        val inlay = activeInlay.get(editor) ?: return
-        Disposer.dispose(inlay)
-        activeInlay.set(editor, null)
     }
 
     private fun saveNote() {
@@ -53,9 +49,7 @@ class NoteSave(val component: EditorTextField, val editor: Editor, val project: 
         val currentTime = LocalDateTime.now().format(formatter)
         val note = Note(component.text, code, project, editor.virtualFile, highlighter, currentTime)
 
-        NotesStorage.getInstance(project).state.addNote(editor.virtualFile, note)
-
-        project.messageBus.syncPublisher(NotesStorage.NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
+        NotesStorage.getInstance(project).addNote(note, editor)
     }
 }
 

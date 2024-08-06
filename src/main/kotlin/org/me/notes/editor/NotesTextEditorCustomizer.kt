@@ -3,9 +3,8 @@ package org.me.notes.editor
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.fileEditor.impl.text.TextEditorCustomizer
 import com.intellij.openapi.util.Disposer
-import org.me.notes.ui.NotesToolBar
 
-class NotesTextEditorCustomizer: TextEditorCustomizer {
+class NotesTextEditorCustomizer : TextEditorCustomizer {
     override fun customize(textEditor: TextEditor) {
         val project = textEditor.editor.project ?: return
         val toolbar = NotesToolBar(textEditor.editor, project)

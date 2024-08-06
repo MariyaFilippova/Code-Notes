@@ -9,10 +9,10 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.me.notes.NotesStorage
-import org.me.notes.ui.textAttributes
+import org.me.notes.storage.NotesStorage
 
-class NotesHighlightingPassFactory : TextEditorHighlightingPassFactoryRegistrar, TextEditorHighlightingPassFactory, DumbAware {
+class NotesHighlightingPassFactory : TextEditorHighlightingPassFactoryRegistrar, TextEditorHighlightingPassFactory,
+    DumbAware {
     override fun registerHighlightingPassFactory(registrar: TextEditorHighlightingPassRegistrar, project: Project) {
         registrar.registerTextEditorHighlightingPass(
             this,
@@ -30,12 +30,12 @@ class NotesHighlightingPassFactory : TextEditorHighlightingPassFactoryRegistrar,
 
 class NotesHighlightingPass(
     private val file: PsiFile,
-    private val editor: Editor
+    private val editor: Editor,
 ) : TextEditorHighlightingPass(file.project, editor.document) {
     override fun doCollectInformation(progress: ProgressIndicator) {}
 
     override fun doApplyInformationToEditor() {
-        NotesStorage.getInstance(file.project).state.notes[file.virtualFile]?.forEach { note ->
+        NotesStorage.getInstance(file.project).notes[file.virtualFile]?.forEach { note ->
             val rangeMarker = note.rangeMarker ?: return@forEach
             val start = rangeMarker.startOffset
             val end = rangeMarker.endOffset

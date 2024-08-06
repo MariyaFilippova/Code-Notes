@@ -3,7 +3,7 @@ package org.me.notes.ui
 import com.intellij.codeInsight.navigation.openFileWithPsiElement
 import com.intellij.icons.AllIcons
 import com.intellij.ide.actions.OpenFileAction
-import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileTypes.FileTypeRegistry
@@ -21,10 +21,9 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
-import org.me.notes.File
-import org.me.notes.Note
-import org.me.notes.NotesStorage
-import org.me.notes.slack.SLACK_ICON
+import org.me.notes.notes.File
+import org.me.notes.notes.Note
+import org.me.notes.storage.NotesStorage
 import org.me.notes.slack.createIcon
 import org.me.notes.slack.postNotesIntoSlackBot
 import java.awt.Component
@@ -33,63 +32,58 @@ import javax.swing.Icon
 import javax.swing.JButton
 import javax.swing.JPanel
 import javax.swing.JTree
+import javax.swing.event.TreeSelectionEvent
+import javax.swing.event.TreeSelectionListener
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeCellRenderer
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION
 
-class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel() {
+@Suppress("UnstableApiUsage")
+class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel(), Disposable {
     companion object {
         val pinIcon = createIcon("/icons/pin.svg")
-        const val LABEL_LENGTH = 10
+        val slackIcon = createIcon("/icons/slack.svg")
     }
 
     private var myNotesTree: Tree = Tree()
     private var myTreeModel: DefaultTreeModel
 
-    private val mySyncSlackButton = JButton("Sync with slack", createIcon(SLACK_ICON))
-
-    @Suppress("UnstableApiUsage")
-    private val mySpinner = JBLabel(SpinningProgressIcon()).apply {
-        isVisible = false
-    }
+    private val mySyncSlackButton = JButton("Sync with slack", slackIcon)
+    private val mySpinner = JBLabel(SpinningProgressIcon()).apply { isVisible = false }
 
     private val myNotesCodeTextArea: EditorTextField = object : EditorTextField(project, PLAIN_TEXT) {
         override fun createEditor(): EditorEx {
-            val editor = super.createEditor()
-            editor.isEmbeddedIntoDialogWrapper = true
-            editor.setBorder(null)
-            return editor
+            return super.createEditor().apply {
+                isEmbeddedIntoDialogWrapper = true
+                setBorder(null)
+                isOneLineMode = false
+            }
         }
+    }
 
-        override fun isOneLineMode(): Boolean {
-            return false
+    private val myTreeSelectionListener = object : TreeSelectionListener {
+        override fun valueChanged(e: TreeSelectionEvent?) {
+            val node = myNotesTree.getSelectedNodes(Note::class.java, null).firstOrNull()
+            if (node == null) {
+                myNotesCodeTextArea.isVisible = false
+                return
+            }
+            navigateToCode(node)
+            showNoteText(node)
         }
     }
 
     init {
         myTreeModel = DefaultTreeModel(buildNotesTree())
-        myNotesTree = Tree(myTreeModel)
-        myNotesTree.apply {
-            isRootVisible = false
-        }
-        PopupHandler.installPopupMenu(myNotesTree, "popup@NotesMenu", ActionPlaces.BOOKMARKS_VIEW_POPUP)
+        myNotesTree = Tree(myTreeModel).apply { isRootVisible = false }
+
         myNotesTree.selectionModel.selectionMode = SINGLE_TREE_SELECTION
-        myNotesTree.addTreeSelectionListener { _ ->
-            val node = myNotesTree.getSelectedNodes(DefaultMutableTreeNode::class.java, null).firstOrNull()
-            if (node == null) {
-                myNotesCodeTextArea.isVisible = false
-                return@addTreeSelectionListener
-            }
-            if (node is File) {
-                myNotesCodeTextArea.isVisible = false
-                return@addTreeSelectionListener
-            }
-            val note = node as Note
-            navigateToCode(note)
-            showNoteText(note)
-        }
+        myNotesTree.addTreeSelectionListener(myTreeSelectionListener)
+
         myNotesTree.cellRenderer = MyCellRenderer()
+
+        PopupHandler.installPopupMenu(myNotesTree, "popup@NotesMenu", "notes.tree")
 
         mySyncSlackButton.apply {
             addActionListener {
@@ -120,8 +114,9 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel() {
             }
             row {
                 scrollCell(myNotesTree).align(AlignX.FILL).resizableColumn().applyToComponent {
-                    (parent.parent as JBScrollPane).border = JBUI.Borders.empty()
-                    (parent.parent as JBScrollPane).horizontalScrollBarPolicy = JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+                    val pane = parent.parent as JBScrollPane
+                    pane.border = JBUI.Borders.empty()
+                    pane.horizontalScrollBarPolicy = JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER
                 }
             }
             indent {
@@ -155,8 +150,7 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel() {
 
     private fun buildNotesTree(): DefaultMutableTreeNode {
         val root = DefaultMutableTreeNode()
-        val notes = NotesStorage.getInstance(project).state.notes
-        notes.forEach {
+        NotesStorage.getInstance(project).notes.forEach {
             val p = File(it.key)
             root.add(p)
             it.value.forEach { note ->
@@ -164,6 +158,10 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel() {
             }
         }
         return root
+    }
+
+    override fun dispose() {
+        myNotesTree.selectionModel.removeTreeSelectionListener(myTreeSelectionListener)
     }
 
     private class MyCellRenderer : DefaultTreeCellRenderer() {
@@ -179,24 +177,24 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel() {
             expanded: Boolean,
             leaf: Boolean,
             row: Int,
-            hasFocus: Boolean
+            hasFocus: Boolean,
         ): Component {
-            if (value is File) {
-                return JBLabel().apply {
+            val label = JBLabel()
+            label.apply {
+                font = Font(Font.MONOSPACED, Font.PLAIN, font.size)
+            }
+            when (value) {
+                is File -> return label.apply {
                     text = value.virtualFile.name
-                    font = Font(Font.MONOSPACED, Font.PLAIN, font.size)
                     icon = getFileIcon(value.virtualFile.name)
                 }
-            } else if (value is Note) {
-                val label = JBLabel().apply {
+
+                is Note -> return label.apply {
                     text = value.getRepresentableText()
                     icon = pinIcon
-                    font = Font(Font.MONOSPACED, Font.PLAIN, font.size)
-                    border = JBUI.Borders.empty(4)
                 }
-                return label
             }
-            return JBLabel()
+            return label
         }
     }
 }
