@@ -3,6 +3,7 @@ package org.me.notes.editor
 import com.intellij.codeHighlighting.*
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.DumbAware
@@ -36,29 +37,35 @@ class NotesHighlightingPass(
     override fun doApplyInformationToEditor() {
         NotesStorage.getInstance(file.project).state.notes[file.virtualFile]?.forEach { note ->
             val rangeMarker = note.rangeMarker ?: return@forEach
-            if (!rangeMarker.isValid) return@forEach
             val start = rangeMarker.startOffset
             val end = rangeMarker.endOffset
 
-            val inlays = editor.inlayModel.getAfterLineEndElementsInRange(rangeMarker.startOffset, rangeMarker.endOffset)
-            if (inlays.any { (it.renderer as? HintRenderer?)?.text == note.text }) return@forEach
-            editor.inlayModel.addAfterLineEndElement(
-                rangeMarker.endOffset,
-                true,
-                HintRenderer(note.text)
-            )
-            val existingHighlighter = editor.markupModel.allHighlighters.find {
-                it.startOffset == start && it.endOffset == end
-            }
-            if (existingHighlighter != null) return@forEach
+            val text = note.getRepresentableText()
 
-            editor.markupModel.addRangeHighlighter(
-                start,
-                end,
-                0,
-                textAttributes(),
-                HighlighterTargetArea.EXACT_RANGE
-            )
+            val existingInlay = editor.inlayModel.getAfterLineEndElementsInRange(0, document.text.length - 1)
+                .filter { it.renderer is HintRenderer }
+                .find { (it.renderer as HintRenderer).text == note.getRepresentableText() }
+            val existingHighlighter =
+                editor.markupModel.allHighlighters.find { it.startOffset == start && it.endOffset == end }
+
+            if (!isValidRangeMarker(rangeMarker)) {
+                existingHighlighter?.dispose()
+                existingInlay?.dispose()
+                return@forEach
+            }
+
+            if (existingInlay != null) return@forEach
+            editor.inlayModel.addAfterLineEndElement(rangeMarker.endOffset, true, HintRenderer(text))
+            if (existingHighlighter != null) return@forEach
+            editor.markupModel.addRangeHighlighter(start, end, 0, textAttributes(), HighlighterTargetArea.EXACT_RANGE)
         }
+    }
+
+    private fun isValidRangeMarker(rangeMarker: RangeMarker): Boolean {
+        val start = rangeMarker.startOffset
+        val end = rangeMarker.endOffset
+        if (start >= end) return false
+        val textUnderRangeMarker = rangeMarker.document.getText(rangeMarker.textRange)
+        return !textUnderRangeMarker.trim().isEmpty()
     }
 }
