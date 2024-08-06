@@ -12,6 +12,9 @@ repositories {
 }
 
 dependencies {
+  testImplementation("junit:junit:4.13.2")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
+
   implementation("org.nanohttpd:nanohttpd:2.3.0")
 }
 
@@ -41,5 +44,9 @@ tasks {
 
   publishPlugin {
     token.set(System.getenv("PUBLISH_TOKEN"))
+  }
+
+  test {
+    useJUnitPlatform()
   }
 }

@@ -26,7 +26,7 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
         val logger = Logger.getInstance(NotesStorage::class.java)
     }
 
-    val notes: MutableMap<VirtualFile, List<Note>> = mutableMapOf()
+    var notes: MutableMap<VirtualFile, List<Note>> = mutableMapOf()
 
     override fun loadState(state: NotesState) {
         super.loadState(state)
