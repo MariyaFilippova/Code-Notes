@@ -18,7 +18,8 @@ import javax.swing.JPanel
 class NotesHighlightingSettings : UiDslUnnamedConfigurable.Simple() {
     @Suppress("UseJBColor")
     override fun Panel.createContent() {
-        val settings = NotesHighlightingConfiguration.getInstance.state
+        val project = ProjectManager.getInstance().openProjects.firstOrNull() ?: return
+        val settings = NotesHighlightingConfiguration.getInstance(project).state
 
         lateinit var enable: Cell<JBCheckBox>
         lateinit var r: Cell<JBTextField>

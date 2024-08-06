@@ -6,6 +6,7 @@ import com.intellij.openapi.components.SimplePersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
+import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.OptionTag
 import org.me.notes.settings.NotesHighlightingConfiguration.Settings
 
@@ -13,7 +14,7 @@ import org.me.notes.settings.NotesHighlightingConfiguration.Settings
 @State(name = "NotesHighlightingSettings", storages = [Storage("notes.xml")])
 class NotesHighlightingConfiguration : SimplePersistentStateComponent<Settings>(Settings()) {
     companion object {
-        val getInstance: NotesHighlightingConfiguration = service()
+        fun getInstance(project: Project): NotesHighlightingConfiguration = project.service()
     }
 
     class Settings : BaseState() {

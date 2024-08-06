@@ -128,8 +128,8 @@ class NotesToolBar(val editor: Editor, val project: Project) : Disposable {
 }
 
 @Suppress("UseJBColor")
-fun textAttributes(): TextAttributes = with(TextAttributes()) {
-    val settings = NotesHighlightingConfiguration.getInstance.state
+fun textAttributes(project: Project): TextAttributes = with(TextAttributes()) {
+    val settings = NotesHighlightingConfiguration.getInstance(project).state
     backgroundColor = Color(settings.r.toInt(), settings.g.toInt(), settings.b.toInt())
     this
 }

@@ -36,7 +36,7 @@ class NotesHighlightingPass(
     override fun doCollectInformation(progress: ProgressIndicator) {}
 
     override fun doApplyInformationToEditor() {
-        val settings = NotesHighlightingConfiguration.getInstance.state
+        val settings = NotesHighlightingConfiguration.getInstance(file.project).state
 
         NotesStorage.getInstance(file.project).notes[file.virtualFile]?.forEach { note ->
             val rangeMarker = note.rangeMarker ?: return@forEach
@@ -66,7 +66,7 @@ class NotesHighlightingPass(
             }
 
             if (existingHighlighter != null || !settings.enableHighlighting) return@forEach
-            editor.markupModel.addRangeHighlighter(start, end, 0, textAttributes(), HighlighterTargetArea.EXACT_RANGE)
+            editor.markupModel.addRangeHighlighter(start, end, 0, textAttributes(file.project), HighlighterTargetArea.EXACT_RANGE)
         }
     }
 
