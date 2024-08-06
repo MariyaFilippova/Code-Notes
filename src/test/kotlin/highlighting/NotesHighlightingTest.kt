@@ -39,16 +39,16 @@ class NotesHighlightingTest : BasePlatformTestCase() {
     }
 
     fun testHighlightingDisabled() {
-        val initialState = NotesHighlightingConfiguration.getInstance.state.enableHighlighting
+        val initialState = NotesHighlightingConfiguration.getInstance(project).state.enableHighlighting
         try {
-            NotesHighlightingConfiguration.getInstance.state.enableHighlighting = false
+            NotesHighlightingConfiguration.getInstance(project).state.enableHighlighting = false
             doHighlighting()
             assert(!myFixture.editor.markupModel.allHighlighters.any {
                 it.range?.startOffset == 487 && it.range?.endOffset == 536
             })
         }
         finally {
-            NotesHighlightingConfiguration.getInstance.state.enableHighlighting = initialState
+            NotesHighlightingConfiguration.getInstance(project).state.enableHighlighting = initialState
         }
     }
 }
