@@ -1,8 +1,8 @@
-package org.me.notes.editor
+package org.me.notes.actions
 
 import com.intellij.ide.ClipboardSynchronizer
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.Toggleable
 import com.intellij.openapi.editor.ex.util.EditorUtil
@@ -10,25 +10,17 @@ import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.refactoring.suggested.range
 import com.intellij.ui.treeStructure.Tree
+import org.me.notes.File
 import org.me.notes.Note
 import org.me.notes.NotesStorage
-import org.me.notes.ui.NotesHint
 import java.awt.datatransfer.StringSelection
-
-class EditNoteAction : DumbAwareAction() {
-    override fun actionPerformed(e: AnActionEvent) {
-        val note = getSelectedNote(e) ?: return
-        val project = e.project ?: return
-
-        val fileEditor = FileEditorManagerEx.getInstanceEx(project).selectedEditor ?: return
-        val editor = EditorUtil.getEditorEx(fileEditor) ?: return
-        NotesHint(editor, note.project, note).showHint()
-    }
-}
+import javax.swing.tree.DefaultMutableTreeNode
 
 class CopyCodeAction : DumbAwareAction(), Toggleable {
     override fun actionPerformed(e: AnActionEvent) {
-        val note = getSelectedNote(e) ?: return
+        val node = getSelectedNode(e) ?: return
+        if (node is File) return
+        val note = node as Note
         val content = StringSelection(note.code)
         ClipboardSynchronizer.getInstance().setContent(content, content)
     }
@@ -36,10 +28,15 @@ class CopyCodeAction : DumbAwareAction(), Toggleable {
 
 class DeleteNoteAction : DumbAwareAction(), Toggleable {
     override fun actionPerformed(e: AnActionEvent) {
-        val note = getSelectedNote(e) ?: return
-        val project = note.project
-        val virtualFile = note.virtualFile
-        NotesStorage.getInstance(project).state.deleteNote(virtualFile, note)
+        val project = e.project ?: return
+        val node = getSelectedNode(e) ?: return
+        if (node is File) {
+            NotesStorage.getInstance(project).state.deleteNotesInFile(node.virtualFile)
+            project.messageBus.syncPublisher(NotesStorage.NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
+            return
+        }
+        val note = node as Note
+        NotesStorage.getInstance(project).state.deleteNote(note)
 
         val fileEditor = FileEditorManagerEx.getInstanceEx(project).selectedEditor ?: return
         val editor = EditorUtil.getEditorEx(fileEditor) ?: return
@@ -53,11 +50,22 @@ class DeleteNoteAction : DumbAwareAction(), Toggleable {
         }
         project.messageBus.syncPublisher(NotesStorage.NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
     }
+
+    override fun update(e: AnActionEvent) {
+        val node = getSelectedNode(e)
+        if (node is File) {
+            e.presentation.text = "Delete File Notes"
+        }
+    }
+
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.EDT
+    }
 }
 
-private fun getSelectedNote(e: AnActionEvent) : Note? {
+private fun getSelectedNode(e: AnActionEvent) : DefaultMutableTreeNode? {
     val tree = e.dataContext.getData(CONTEXT_COMPONENT) as Tree? ?: return null
-    val notes = tree.getSelectedNodes(Note::class.java, null)
+    val notes = tree.getSelectedNodes(DefaultMutableTreeNode::class.java, null)
     if (notes.isEmpty()) return null
     return notes.first()
 }

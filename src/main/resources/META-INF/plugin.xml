@@ -9,17 +9,14 @@
     <description>Notes plugin for your favourite fgfggwehfgefgferfgerhffgfgerf code</description>
     <depends>com.intellij.modules.platform</depends>
     <actions>
-        <action id="org.me.notes.editor.EditNoteAction" class="org.me.notes.editor.EditNoteAction"
-                text="Edit Note"/>
-        <action id="org.me.notes.editor.CopyCodeAction" class="org.me.notes.editor.CopyCodeAction"
+        <action id="org.me.notes.actions.CopyCodeAction" class="org.me.notes.actions.CopyCodeAction"
                 text="Copy Code"/>
-        <action id="org.me.notes.editor.DeleteNoteAction" class="org.me.notes.editor.DeleteNoteAction"
+        <action id="org.me.notes.actions.DeleteNoteAction" class="org.me.notes.actions.DeleteNoteAction"
                 text="Delete Note"/>
 
         <group id="popup@NotesMenu">
-            <reference ref="org.me.notes.editor.EditNoteAction"/>
-            <reference ref="org.me.notes.editor.CopyCodeAction"/>
-            <reference ref="org.me.notes.editor.DeleteNoteAction"/>
+            <reference ref="org.me.notes.actions.CopyCodeAction"/>
+            <reference ref="org.me.notes.actions.DeleteNoteAction"/>
             <separator/>
             <add-to-group group-id="EditorGutterPopupMenu" anchor="before" relative-to-action="EditorToggleUseSoftWraps"/>
         </group>

@@ -30,11 +30,17 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
             incrementModificationCount()
         }
 
-        fun deleteNote(file: VirtualFile, note: Note) {
+        fun deleteNote(note: Note) {
+            val file = note.virtualFile
             notes.computeIfPresent(file) { _, n -> n.minus(note) }
             if (notes[file] != null && notes[file]!!.isEmpty()) {
                 notes.remove(file)
             }
+            incrementModificationCount()
+        }
+
+        fun deleteNotesInFile(file: VirtualFile) {
+            notes.remove(file)
             incrementModificationCount()
         }
     }
