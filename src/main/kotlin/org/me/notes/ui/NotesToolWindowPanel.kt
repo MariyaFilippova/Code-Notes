@@ -1,7 +1,9 @@
 package org.me.notes.ui
 
 import com.intellij.codeInsight.navigation.openFileWithPsiElement
+import com.intellij.icons.AllIcons
 import com.intellij.ide.actions.OpenFileAction
+import com.intellij.openapi.fileTypes.FileTypeRegistry
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
 import com.intellij.ui.ScrollPaneFactory
@@ -20,6 +22,7 @@ import org.me.notes.slack.postNotesIntoSlackBot
 import java.awt.Component
 import java.awt.Font
 import javax.swing.BoxLayout
+import javax.swing.Icon
 import javax.swing.JButton
 import javax.swing.JPanel
 import javax.swing.JTree
@@ -112,6 +115,11 @@ class NotesToolWindowPanel(private val project: Project) {
     }
 
     private class MyCellRenderer : DefaultTreeCellRenderer() {
+        private fun getFileIcon(fileName: String): Icon {
+            val fileType = FileTypeRegistry.getInstance().getFileTypeByFileName(fileName)
+            return fileType.icon ?: AllIcons.FileTypes.Unknown
+        }
+
         override fun getTreeCellRendererComponent(
             tree: JTree?,
             value: Any?,
@@ -125,6 +133,7 @@ class NotesToolWindowPanel(private val project: Project) {
                 return JBLabel().apply {
                     text = value.virtualFile.name
                     font = Font(Font.MONOSPACED, Font.PLAIN, font.size)
+                    icon = getFileIcon(value.virtualFile.name)
                 }
             } else if (value is Note) {
                 val label = JBLabel().apply {
