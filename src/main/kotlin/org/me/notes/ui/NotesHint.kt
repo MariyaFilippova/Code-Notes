@@ -97,8 +97,8 @@ class NotesHint(private val editor: Editor, private val project: Project, privat
         HintManagerImpl.getInstanceImpl().showGutterHint(
             myHint,
             editor,
-            editor.yToVisualLine(point.y),
-            editor.offsetToXY(editor.selectionModel.selectionEnd).x,
+            editor.document.getLineNumber(editor.selectionModel.selectionEnd),
+            point.x,
             HintManager.HIDE_BY_ESCAPE,
             0,
             false,
