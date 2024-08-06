@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.tree.DefaultMutableTreeNode
 
 class Note(
-    val text: String,
+    var text: String,
     val code: String,
     val project: Project,
     val virtualFile: VirtualFile,

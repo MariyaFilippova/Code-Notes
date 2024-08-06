@@ -8,14 +8,14 @@ import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.psi.impl.source.tree.injected.changesHandler.range
 import org.me.notes.NotesPersistentState
 import org.me.notes.editor.NotesIconRenderer.Companion.NOTE
-import org.me.notes.ui.NotesToolBar
+import org.me.notes.ui.NotesHint
 import java.awt.datatransfer.StringSelection
 
 class EditNoteAction : DumbAwareAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val editor = e.dataContext.getData(CommonDataKeys.EDITOR) ?: return
         val note = editor.getUserData(NOTE) ?: return
-        NotesToolBar(editor, note.project).showHint()
+        NotesHint(editor, note.project, note).showHint()
     }
 }
 
