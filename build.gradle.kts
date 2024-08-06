@@ -11,6 +11,10 @@ repositories {
   mavenCentral()
 }
 
+dependencies {
+  implementation("org.nanohttpd:nanohttpd:2.3.0")
+}
+
 intellij {
   version.set("2023.2.6")
   type.set("IC")
