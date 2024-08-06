@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.Toggleable
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.psi.impl.source.tree.injected.changesHandler.range
-import org.me.notes.NotesPersistentState
+import org.me.notes.NotesStorage
 import org.me.notes.editor.NotesIconRenderer.Companion.NOTE
 import org.me.notes.ui.NotesHint
 import java.awt.datatransfer.StringSelection
@@ -23,8 +23,7 @@ class CopyCodeAction : DumbAwareAction(), Toggleable {
     override fun actionPerformed(e: AnActionEvent) {
         val editor = e.dataContext.getData(CommonDataKeys.EDITOR) ?: return
         val note = editor.getUserData(NOTE) ?: return
-        val code = note.rangeHighlighter.document.getText(note.rangeHighlighter.range)
-        val content = StringSelection(code)
+        val content = StringSelection(note.code)
         ClipboardSynchronizer.getInstance().setContent(content, content)
     }
 }
@@ -35,9 +34,11 @@ class DeleteNoteAction : DumbAwareAction(), Toggleable {
         val note = editor.getUserData(NOTE) ?: return
         val project = note.project
         val virtualFile = note.virtualFile
-        NotesPersistentState.getInstance(project).state.deleteNote(virtualFile, note)
-        note.rangeHighlighter.dispose()
-        project.messageBus.syncPublisher(NotesPersistentState.NotesChangedListener.NOTES_CHANGED_TOPIC)
+        NotesStorage.getInstance(project).state.deleteNote(virtualFile, note)
+        editor.markupModel.allHighlighters.forEach {
+            if (it.range == note.rangeMarker.range) it.dispose()
+        }
+        project.messageBus.syncPublisher(NotesStorage.NotesChangedListener.NOTES_CHANGED_TOPIC)
             .notesChanged()
     }
 }

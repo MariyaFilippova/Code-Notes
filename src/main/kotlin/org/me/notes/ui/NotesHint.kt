@@ -12,7 +12,7 @@ import com.intellij.ui.LightweightHint
 import com.intellij.ui.components.JBTextArea
 import com.intellij.util.ui.JBUI
 import org.me.notes.Note
-import org.me.notes.NotesPersistentState
+import org.me.notes.NotesStorage
 import org.me.notes.editor.NotesIconRenderer
 import java.awt.BorderLayout
 import java.awt.Point
@@ -68,12 +68,12 @@ class NotesHint(private val editor: Editor, private val project: Project, privat
 
         val note = Note(myTextArea.text, selectedCode, project, editor.virtualFile, highlighter)
 
-        NotesPersistentState.getInstance(project).state.addNote(editor.virtualFile, note)
+        NotesStorage.getInstance(project).state.addNote(editor.virtualFile, note)
         highlighter.gutterIconRenderer = NotesIconRenderer(editor, note)
 
         myTextArea.text = ""
         myHint.hide()
-        project.messageBus.syncPublisher(NotesPersistentState.NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
+        project.messageBus.syncPublisher(NotesStorage.NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
     }
 
     private fun editNote() {
@@ -81,7 +81,7 @@ class NotesHint(private val editor: Editor, private val project: Project, privat
         note.text = myTextArea.text
         myTextArea.text = ""
         myHint.hide()
-        project.messageBus.syncPublisher(NotesPersistentState.NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
+        project.messageBus.syncPublisher(NotesStorage.NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
     }
 
     override fun dispose() {

@@ -1,6 +1,6 @@
 package org.me.notes
 
-import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.tree.DefaultMutableTreeNode
@@ -10,7 +10,7 @@ class Note(
     val code: String,
     val project: Project,
     val virtualFile: VirtualFile,
-    var rangeHighlighter: RangeHighlighter
+    var rangeMarker: RangeMarker
 ) : DefaultMutableTreeNode() {
 
     override fun isLeaf() = true

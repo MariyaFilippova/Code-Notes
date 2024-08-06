@@ -12,7 +12,7 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.JBUI
 import org.me.notes.File
 import org.me.notes.Note
-import org.me.notes.NotesPersistentState
+import org.me.notes.NotesStorage
 import java.awt.Component
 import java.awt.Font
 import javax.swing.BoxLayout
@@ -69,13 +69,13 @@ class NotesToolWindowPanel(private val project: Project) {
     private fun navigateToCode(note: Note) {
         OpenFileAction.openFile(note.virtualFile, note.project)
         val psiFile = PsiManager.getInstance(note.project).findFile(note.virtualFile) ?: return
-        val element = psiFile.findElementAt(note.rangeHighlighter.startOffset) ?: return
+        val element = psiFile.findElementAt(note.rangeMarker.startOffset) ?: return
         openFileWithPsiElement(element, searchForOpen = true, requestFocus = true)
     }
 
     private fun buildNotesTree(): DefaultMutableTreeNode {
         val root = DefaultMutableTreeNode()
-        val notes = NotesPersistentState.getInstance(project).state.notes
+        val notes = NotesStorage.getInstance(project).state.notes
         notes.forEach {
             val p = File(it.key)
             root.add(p)

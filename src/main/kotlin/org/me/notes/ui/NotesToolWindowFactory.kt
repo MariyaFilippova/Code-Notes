@@ -5,14 +5,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentManager
-import org.me.notes.NotesPersistentState
+import org.me.notes.NotesStorage
 
 class NotesToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         addContent(toolWindow.contentManager, project)
 
-        project.messageBus.connect().subscribe(NotesPersistentState.NotesChangedListener.NOTES_CHANGED_TOPIC, object :
-            NotesPersistentState.NotesChangedListener {
+        project.messageBus.connect().subscribe(NotesStorage.NotesChangedListener.NOTES_CHANGED_TOPIC, object :
+            NotesStorage.NotesChangedListener {
             override fun notesChanged() {
                 toolWindow.contentManager.removeAllContents(true)
                 addContent(toolWindow.contentManager, project)

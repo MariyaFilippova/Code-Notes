@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.me.notes.NotesPersistentState
+import org.me.notes.NotesStorage
 import org.me.notes.ui.textAttributes
 
 class NotesHighlightingPassFactory : TextEditorHighlightingPassFactoryRegistrar, TextEditorHighlightingPassFactory {
@@ -32,10 +32,10 @@ class NotesHighlightingPass(
     override fun doCollectInformation(progress: ProgressIndicator) {}
 
     override fun doApplyInformationToEditor() {
-        NotesPersistentState.getInstance(file.project).state.notes[file.virtualFile]?.forEach { note ->
-            if (!note.rangeHighlighter.isValid) return@forEach
-            val start = note.rangeHighlighter.startOffset
-            val end = note.rangeHighlighter.endOffset
+        NotesStorage.getInstance(file.project).state.notes[file.virtualFile]?.forEach { note ->
+            if (!note.rangeMarker.isValid) return@forEach
+            val start = note.rangeMarker.startOffset
+            val end = note.rangeMarker.endOffset
 
             val existingHighlighter = editor.markupModel.allHighlighters.find {
                 it.startOffset == start && it.endOffset == end
@@ -50,7 +50,6 @@ class NotesHighlightingPass(
                 HighlighterTargetArea.EXACT_RANGE
             )
             highlighter.gutterIconRenderer = NotesIconRenderer(editor, note)
-            note.rangeHighlighter = highlighter
         }
     }
 }
