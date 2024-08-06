@@ -4,7 +4,6 @@ import com.intellij.ide.ClipboardSynchronizer
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys.CONTEXT_COMPONENT
-import com.intellij.openapi.actionSystem.Toggleable
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.ui.treeStructure.Tree
 import org.me.notes.notes.File
@@ -13,7 +12,7 @@ import org.me.notes.storage.NotesStorage
 import java.awt.datatransfer.StringSelection
 import javax.swing.tree.DefaultMutableTreeNode
 
-class CopyCodeAction : DumbAwareAction(), Toggleable {
+class CopyCodeAction : DumbAwareAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val node = getSelectedNode(e) ?: return
         if (node is File) return
@@ -33,7 +32,7 @@ class CopyCodeAction : DumbAwareAction(), Toggleable {
     }
 }
 
-class DeleteNoteAction : DumbAwareAction(), Toggleable {
+class DeleteNoteAction : DumbAwareAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val node = getSelectedNode(e) ?: return
