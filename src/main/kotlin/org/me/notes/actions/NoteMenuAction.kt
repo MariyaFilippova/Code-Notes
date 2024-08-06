@@ -11,6 +11,7 @@ import org.me.notes.notes.Note
 import org.me.notes.storage.NotesStorage
 import java.awt.datatransfer.StringSelection
 import javax.swing.tree.DefaultMutableTreeNode
+import javax.swing.tree.DefaultTreeModel
 
 class CopyCodeAction : DumbAwareAction() {
     override fun actionPerformed(e: AnActionEvent) {
@@ -38,9 +39,31 @@ class DeleteNoteAction : DumbAwareAction() {
         val node = getSelectedNode(e) ?: return
 
         when (node) {
-            is File -> NotesStorage.getInstance(project).deleteNotesInFile(node.virtualFile, project)
-            is Note -> NotesStorage.getInstance(project).deleteNote(node, project)
+            is File -> {
+                NotesStorage.getInstance(project).deleteNotesInFile(node.virtualFile, project)
+                //update tree
+                deleteNotesInFile(e, node)
+            }
+            is Note -> {
+                NotesStorage.getInstance(project).deleteNote(node, project)
+                //update tree
+                deleteNote(e, node)
+            }
         }
+    }
+
+    fun deleteNote(e: AnActionEvent, note: Note) {
+        val tree = e.dataContext.getData(CONTEXT_COMPONENT) as Tree? ?: return
+        val treeModel = tree.model as DefaultTreeModel? ?: return
+        val parent = note.parent as? File ?: return
+        treeModel.removeNodeFromParent(note)
+        if (parent.childCount == 0) treeModel.removeNodeFromParent(parent)
+    }
+
+    fun deleteNotesInFile(e: AnActionEvent, file: File) {
+        val tree = e.dataContext.getData(CONTEXT_COMPONENT) as Tree? ?: return
+        val treeModel = tree.model as DefaultTreeModel? ?: return
+        treeModel.removeNodeFromParent(file)
     }
 
     override fun update(e: AnActionEvent) {

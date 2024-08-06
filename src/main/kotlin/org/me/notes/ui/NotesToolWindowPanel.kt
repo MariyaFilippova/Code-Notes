@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileTypes.FileTypeRegistry
 import com.intellij.openapi.fileTypes.FileTypes.PLAIN_TEXT
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiManager
 import com.intellij.ui.EditorTextField
 import com.intellij.ui.PopupHandler
@@ -23,9 +24,9 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
 import org.me.notes.notes.File
 import org.me.notes.notes.Note
-import org.me.notes.storage.NotesStorage
 import org.me.notes.slack.createIcon
 import org.me.notes.slack.postNotesIntoSlackBot
+import org.me.notes.storage.NotesStorage
 import java.awt.Component
 import java.awt.Font
 import javax.swing.Icon
@@ -47,7 +48,7 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel(), 
     }
 
     private var myNotesTree: Tree = Tree()
-    private var myTreeModel: DefaultTreeModel
+    var myTreeModel: DefaultTreeModel
 
     private val mySyncSlackButton = JButton("Sync with slack", slackIcon)
     private val mySpinner = JBLabel(SpinningProgressIcon()).apply { isVisible = false }
@@ -197,4 +198,15 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel(), 
             return label
         }
     }
+}
+
+fun getModel(project: Project): DefaultTreeModel? {
+    val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Notes") ?: return null
+    if (!toolWindow.isVisible) return null
+
+    toolWindow.contentManager.contents.forEach {
+        val panel = it.component as NotesToolWindowPanel? ?: return@forEach
+        return panel.myTreeModel
+    }
+    return null
 }

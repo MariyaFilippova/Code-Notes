@@ -1,6 +1,5 @@
 package org.me.notes.storage
 
-import com.intellij.openapi.application.readAction
 import com.intellij.openapi.components.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
@@ -13,9 +12,6 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findDocument
 import com.intellij.refactoring.suggested.range
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.me.notes.editor.NotesToolBar.Companion.activeInlay
 import org.me.notes.notes.Note
 import java.nio.file.Paths
@@ -34,18 +30,16 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
 
     override fun loadState(state: NotesState) {
         super.loadState(state)
-        CoroutineScope(Dispatchers.Default).launch {
-            state.notes.forEach { entry ->
-                val virtualFile = VfsUtil.findFile(Paths.get(entry.key), true)
-                val notesInFile = entry.value.notes
+        state.notes.forEach { entry ->
+            val virtualFile = VfsUtil.findFile(Paths.get(entry.key), true)
+            val notesInFile = entry.value.notes
 
-                if (virtualFile == null) {
-                    logger.debug("Cannot find ${entry.key} file")
-                    return@forEach
-                }
-                notes[virtualFile] =
-                    notesInFile.mapNotNull { noteState -> readAction { createNote(noteState, virtualFile) } }
+            if (virtualFile == null) {
+                logger.debug("Cannot find ${entry.key} file")
+                return@forEach
             }
+            notes[virtualFile] =
+                notesInFile.mapNotNull { noteState -> createNote(noteState, virtualFile) }
         }
     }
 
@@ -80,7 +74,6 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
         notes.compute(virtualFile) { _, v ->
             v?.plus(note) ?: listOf(note)
         }
-        project.messageBus.syncPublisher(NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
 
         state.notes.compute(path) { _, v ->
             val start = note.rangeMarker?.startOffset ?: -1
@@ -114,8 +107,6 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
 
         if (notes[virtualFile]?.isEmpty() == true) notes.remove(virtualFile)
 
-        project.messageBus.syncPublisher(NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
-
         val notesListState = state.notes[path] ?: return
         val noteState = notesListState.notes.find { it.code == note.code } ?: return
 
@@ -145,7 +136,6 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
 
     fun deleteNotesInFile(file: VirtualFile, project: Project) {
         notes[file]?.forEach { note -> deleteNote(note, project) }
-        project.messageBus.syncPublisher(NotesChangedListener.NOTES_CHANGED_TOPIC).notesChanged()
 
         state.notes.remove(file.path)
 

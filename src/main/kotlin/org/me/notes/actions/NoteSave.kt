@@ -10,12 +10,15 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiManager
 import com.intellij.ui.EditorTextField
 import org.me.notes.editor.NotesToolBar.Companion.activeInlay
+import org.me.notes.notes.File
 import org.me.notes.notes.Note
 import org.me.notes.storage.NotesStorage
 import org.me.notes.ui.NotesToolWindowPanel.Companion.pinIcon
+import org.me.notes.ui.getModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.function.Supplier
+import javax.swing.tree.DefaultMutableTreeNode
 
 class NoteSave(val component: EditorTextField, val editor: Editor, val project: Project) :
     DumbAwareAction(Supplier { "Save Note" }, pinIcon) {
@@ -46,6 +49,16 @@ class NoteSave(val component: EditorTextField, val editor: Editor, val project: 
         val note = Note(component.text, code, project, editor.virtualFile, rangeMarker, currentTime)
 
         NotesStorage.getInstance(project).addNote(note, editor)
+
+        val model = getModel(project) ?: return
+        val root = model.root as? DefaultMutableTreeNode ?: return
+
+        var fileNode = root.children().asSequence().find { (it as? File)?.virtualFile == file.virtualFile } as File?
+        if (fileNode == null) {
+            fileNode = File(file.virtualFile)
+            model.insertNodeInto(fileNode, root, 0)
+        }
+        model.insertNodeInto(note, fileNode, 0)
     }
 }
 
