@@ -15,7 +15,8 @@ dependencies {
   testImplementation("junit:junit:4.13.2")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
 
-  implementation("org.nanohttpd:nanohttpd:2.3.0")
+  implementation("com.slack.api:bolt-jetty:1.40.3")
+  implementation("com.squareup.okhttp3:okhttp-tls:4.12.0")
 }
 
 intellij {

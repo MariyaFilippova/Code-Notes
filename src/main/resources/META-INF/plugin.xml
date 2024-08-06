@@ -27,5 +27,6 @@
                     factoryClass="org.me.notes.ui.NotesToolWindowFactory"/>
         <highlightingPassFactory implementation="org.me.notes.editor.NotesHighlightingPassFactory"/>
         <editorAppearanceConfigurable instance="org.me.notes.settings.NotesHighlightingSettings"/>
+        <postStartupActivity implementation="org.me.notes.slack.SlackSecretProjectActivity"/>
     </extensions>
 </idea-plugin>
