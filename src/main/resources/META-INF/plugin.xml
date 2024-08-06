@@ -19,7 +19,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <textEditorCustomizer implementation="org.me.notes.editor.NotesTextEditorCustomizer"/>
         <toolWindow anchor="right" id="Notes" doNotActivateOnStart="false"
-                    factoryClass="org.me.notes.ui.NotesToolWindowFactory"/>
+                    factoryClass="org.me.notes.ui.NotesToolWindowFactory" icon="/META-INF/pluginIcon.svg"/>
         <highlightingPassFactory implementation="org.me.notes.editor.NotesHighlightingPassFactory"/>
         <editorAppearanceConfigurable instance="org.me.notes.settings.NotesHighlightingSettings"/>
         <postStartupActivity implementation="org.me.notes.slack.SlackSecretProjectActivity"/>
