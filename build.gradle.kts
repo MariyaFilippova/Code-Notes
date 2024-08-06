@@ -17,7 +17,7 @@ dependencies {
 
 intellij {
   version.set("2024.1")
-  type.set("IC")
+  type.set("IU")
 }
 
 tasks {
@@ -30,7 +30,7 @@ tasks {
   }
 
   patchPluginXml {
-    sinceBuild.set("232")
+    sinceBuild.set("241")
   }
 
   signPlugin {
