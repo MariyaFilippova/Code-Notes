@@ -1,27 +1,30 @@
 plugins {
   id("java")
-  id("org.jetbrains.kotlin.jvm") version "1.9.23"
-  id("org.jetbrains.intellij") version "1.17.3"
+  id("org.jetbrains.kotlin.jvm") version "2.0.0"
+  id("org.jetbrains.intellij.platform") version "2.0.0-rc1"
+}
+
+// Configure project's dependencies
+repositories {
+  mavenCentral()
+
+  intellijPlatform {
+    defaultRepositories()
+  }
 }
 
 group = "org.me"
 version = "1.0-SNAPSHOT"
 
-repositories {
-  mavenCentral()
-}
-
 dependencies {
+  intellijPlatform {
+    create("IU", "242.20224-EAP-CANDIDATE-SNAPSHOT", useInstaller = false)
+  }
   testImplementation("junit:junit:4.13.2")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
 
   implementation("com.slack.api:bolt-jetty:1.40.3")
   implementation("com.squareup.okhttp3:okhttp-tls:4.12.0")
-}
-
-intellij {
-  version.set("2024.1")
-  type.set("IU")
 }
 
 tasks {
@@ -30,7 +33,7 @@ tasks {
     targetCompatibility = "17"
   }
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.jvmTarget = "21"
   }
 
   patchPluginXml {
