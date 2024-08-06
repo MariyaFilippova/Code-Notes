@@ -1,5 +1,6 @@
 package org.me.notes
 
+import com.intellij.openapi.application.readAction
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -17,9 +18,9 @@ class Note(
 
     override fun isLeaf() = true
 
-    fun getMessage(): String {
+    suspend fun getMessage(): String {
         if (!rangeMarker.isValid) return ""
-        val line = virtualFile.findDocument()?.getLineNumber(rangeMarker.startOffset)
+        val line = readAction { virtualFile.findDocument()?.getLineNumber(rangeMarker.startOffset) }
         rangeMarker.startOffset
         return ":star: _${time.substringBefore(" ")}_\n" +
                 "${prepareText()}\n" +
