@@ -105,10 +105,15 @@ class NotesInlayPanel(val editor: Editor, val project: Project) : JPanel(), Disp
         removeAll()
     }
 
-    override fun getData(e: @NonNls String) = when (e) {
-        PlatformDataKeys.EDITOR.name -> myTextArea.editor
-        CommonDataKeys.HOST_EDITOR.name -> myTextArea.editor
-        PlatformCoreDataKeys.FILE_EDITOR.name -> TextEditorProvider.getInstance().getTextEditor(myTextArea.editor!!)
-        else -> null
+    override fun getData(e: @NonNls String): Any? {
+        return when (e) {
+            PlatformDataKeys.EDITOR?.name -> myTextArea.editor
+            CommonDataKeys.HOST_EDITOR?.name -> myTextArea.editor
+            PlatformCoreDataKeys.FILE_EDITOR?.name -> {
+                if (myTextArea?.editor == null) return null
+                return TextEditorProvider.getInstance().getTextEditor(myTextArea.editor!!)
+            }
+            else -> null
+        }
     }
 }
