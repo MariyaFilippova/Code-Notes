@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findDocument
 import javax.swing.tree.DefaultMutableTreeNode
+import kotlin.text.isWhitespace
 
 class Note(
     var text: String,
@@ -30,11 +31,19 @@ class Note(
         return ":star: _${time.substringBefore(" ")}_\n" +
                 "${prepareText()}\n" +
                 "<http://localhost:3001?file=${virtualFile.path}&line=$line|`${virtualFile.path}$line`>\n" +
-                "```${code}```"
+                "```${prepareCode()}```"
     }
 
     private fun prepareText(): String {
         return text.trim().replace(">", "&gt;").split("\n").joinToString("\n") { ">$it" }
+    }
+
+    private fun prepareCode(): String {
+        val minCommonIndent =
+            code.lines().filter(String::isNotBlank)
+                .minOfOrNull { line -> line.indexOfFirst { !it.isWhitespace() }.let { if (it == -1) line.length else it } }
+                ?: 0
+        return code.lines().joinToString("\n") { line -> line.substring(minCommonIndent) }
     }
 }
 
