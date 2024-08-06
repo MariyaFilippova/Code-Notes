@@ -23,7 +23,7 @@ class NotesToolWindowFactory : ToolWindowFactory, DumbAware {
     }
 
     private fun addContent(contentManager: ContentManager, project: Project) {
-        val panel = NotesToolWindowPanel(project).getPanel()
+        val panel = NotesToolWindowPanel(project)
         val content = contentManager.factory.createContent(panel, null, false)
         contentManager.addContent(content)
     }

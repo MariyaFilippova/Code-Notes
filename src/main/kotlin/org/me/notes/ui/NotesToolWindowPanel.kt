@@ -4,17 +4,23 @@ import com.intellij.codeInsight.navigation.openFileWithPsiElement
 import com.intellij.icons.AllIcons
 import com.intellij.ide.actions.OpenFileAction
 import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileTypes.FileTypeRegistry
+import com.intellij.openapi.fileTypes.FileTypes.PLAIN_TEXT
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
 import com.intellij.ui.EditorTextField
 import com.intellij.ui.PopupHandler
-import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SpinningProgressIcon
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.ui.dsl.builder.Align
+import com.intellij.ui.dsl.builder.AlignX
+import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.components.BorderLayoutPanel
 import org.me.notes.File
 import org.me.notes.Note
 import org.me.notes.NotesStorage
@@ -23,7 +29,6 @@ import org.me.notes.slack.createIcon
 import org.me.notes.slack.postNotesIntoSlackBot
 import java.awt.Component
 import java.awt.Font
-import javax.swing.BoxLayout
 import javax.swing.Icon
 import javax.swing.JButton
 import javax.swing.JPanel
@@ -33,8 +38,12 @@ import javax.swing.tree.DefaultTreeCellRenderer
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION
 
-class NotesToolWindowPanel(private val project: Project) {
-    private var myNotesTreePanel: JBScrollPane
+class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel()  {
+    companion object {
+        private val pinIcon = createIcon("/icons/pin.svg")
+        const val LABEL_LENGTH = 10
+    }
+
     private var myNotesTree: Tree = Tree()
     private var myTreeModel: DefaultTreeModel
 
@@ -44,20 +53,31 @@ class NotesToolWindowPanel(private val project: Project) {
         isVisible = false
     }
 
-    private var myNotesTextArea = EditorTextField().apply {
-        isVisible = false
+    private val myNotesCodeTextArea: EditorTextField = object : EditorTextField(project, PLAIN_TEXT) {
+        override fun createEditor(): EditorEx {
+            val editor = super.createEditor()
+            editor.isEmbeddedIntoDialogWrapper = true
+            editor.setBorder(null)
+            return editor
+        }
+
+        override fun isOneLineMode(): Boolean {
+            return false
+        }
     }
 
     init {
         myTreeModel = DefaultTreeModel(buildNotesTree())
         myNotesTree = Tree(myTreeModel)
-        myNotesTree.isRootVisible = false
+        myNotesTree.apply {
+            isRootVisible = false
+        }
         PopupHandler.installPopupMenu(myNotesTree, "popup@NotesMenu", ActionPlaces.BOOKMARKS_VIEW_POPUP)
         myNotesTree.selectionModel.selectionMode = SINGLE_TREE_SELECTION
         myNotesTree.addTreeSelectionListener { _ ->
             val notes = myNotesTree.getSelectedNodes(Note::class.java, null)
             if (notes.isEmpty()) {
-                myNotesTextArea.isVisible = false
+                myNotesCodeTextArea.isVisible = false
                 return@addTreeSelectionListener
             }
             val note = notes.first()
@@ -65,7 +85,7 @@ class NotesToolWindowPanel(private val project: Project) {
             showNoteText(note)
         }
         myNotesTree.cellRenderer = MyCellRenderer()
-        myNotesTreePanel = ScrollPaneFactory.createScrollPane(myNotesTree, true) as JBScrollPane
+
         mySyncSlackButton.apply {
             addActionListener {
                 mySpinner.isVisible = true
@@ -74,26 +94,47 @@ class NotesToolWindowPanel(private val project: Project) {
                 }
             }
         }
+
+        myNotesCodeTextArea.apply {
+            isVisible = false
+            font = Font(Font.MONOSPACED, Font.PLAIN, 12)
+            border = null
+            isFocusable = false
+        }
+
+        add(getPanel())
     }
 
     fun getPanel(): JPanel {
-        val containerPanel = JPanel()
-        containerPanel.setLayout(BoxLayout(containerPanel, BoxLayout.Y_AXIS))
-        val syncPanel = JPanel().apply {
-            setLayout(BoxLayout(this, BoxLayout.LINE_AXIS))
+        return panel {
+            row {
+                panel {
+                    row {
+                        cell(mySyncSlackButton)
+                        cell(mySpinner)
+                    }
+                }
+            }
+            row {
+                scrollCell(myNotesTree).align(AlignX.FILL).resizableColumn().applyToComponent {
+                    (parent.parent as JBScrollPane).border = JBUI.Borders.empty()
+                    (parent.parent as JBScrollPane).horizontalScrollBarPolicy = JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+                }
+            }
+            row {
+                scrollCell(myNotesCodeTextArea).align(Align.FILL).applyToComponent {
+                    (parent.parent as JBScrollPane).border = JBUI.Borders.empty()
+                }
+            }.resizableRow()
         }
-        syncPanel.add(mySyncSlackButton)
-        syncPanel.add(mySpinner)
-        containerPanel.add(syncPanel)
-        containerPanel.add(myNotesTreePanel)
-        containerPanel.add(ScrollPaneFactory.createScrollPane(myNotesTextArea, true) as JBScrollPane)
-        return containerPanel
     }
 
     private fun showNoteText(note: Note) {
-        myNotesTextArea.isVisible = true
-        myNotesTextArea.fileType = FileTypeRegistry.getInstance().getFileTypeByFileName(note.virtualFile.name)
-        myNotesTextArea.text = "// ${note.text}\n${note.code}"
+        myNotesCodeTextArea.isVisible = true
+        myNotesCodeTextArea.fileType = FileTypeRegistry.getInstance().getFileTypeByFileName(note.virtualFile.name)
+        val commentedNote = note.text.lines().joinToString("\n") {"// $it" }
+        myNotesCodeTextArea.document = EditorFactory.getInstance().createDocument("$commentedNote\n${note.code}")
+        myNotesCodeTextArea.document.setReadOnly(true)
     }
 
     private fun navigateToCode(note: Note) {
@@ -140,7 +181,8 @@ class NotesToolWindowPanel(private val project: Project) {
                 }
             } else if (value is Note) {
                 val label = JBLabel().apply {
-                    text = value.text
+                    text = value.getRepresentableText()
+                    icon = pinIcon
                     font = Font(Font.MONOSPACED, Font.PLAIN, font.size)
                     border = JBUI.Borders.empty(4)
                 }

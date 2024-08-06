@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findDocument
+import org.me.notes.ui.NotesToolWindowPanel.Companion.LABEL_LENGTH
 import javax.swing.tree.DefaultMutableTreeNode
 import kotlin.text.isWhitespace
 
@@ -18,6 +19,13 @@ class Note(
 ) : DefaultMutableTreeNode() {
 
     override fun isLeaf() = true
+
+    fun getRepresentableText() : String {
+        if (text.length > LABEL_LENGTH) {
+            return text.substring(0, LABEL_LENGTH) + "..."
+        }
+        return text
+    }
 
     suspend fun getMessage(): String {
         val line = rangeMarker?.let {
