@@ -6,7 +6,6 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentManager
 import org.me.notes.NotesStorage
-import rescheduleSlackMessage
 
 class NotesToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
@@ -17,7 +16,6 @@ class NotesToolWindowFactory : ToolWindowFactory, DumbAware {
             override fun notesChanged() {
                 toolWindow.contentManager.removeAllContents(true)
                 addContent(toolWindow.contentManager, project)
-                rescheduleSlackMessage(project)
             }
         })
     }

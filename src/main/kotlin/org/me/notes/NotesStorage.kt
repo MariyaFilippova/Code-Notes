@@ -17,7 +17,6 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
     class MyState : BaseState() {
         @get:OptionTag(converter = NotesConverter::class)
         var notes: MutableMap<VirtualFile, List<Note>> by map()
-        var messageId : String? by string()
 
         fun addNote(file: VirtualFile, note: Note) {
             notes.compute(file) { _, v ->
