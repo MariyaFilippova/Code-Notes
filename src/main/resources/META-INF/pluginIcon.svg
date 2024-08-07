@@ -1,12 +1,11 @@
-<svg width="26" height="26" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M32.0845 7.94025V4H24.0203V7.9896H16.029V4H7.91553V7.94025H4V36H16.0044V32.0045C16.0058 30.9457 16.4274 29.9308 17.1766 29.1826C17.9258 28.4345 18.9412 28.0143 20 28.0143C21.0588 28.0143 22.0743 28.4345 22.8234 29.1826C23.5726 29.9308 23.9942 30.9457 23.9956 32.0045V36H36V7.94025H32.0845Z"
-          fill="url(#paint0_linear)"/>
+<svg width="26" height="26" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <linearGradient id="paint0_linear" x1="2.94192" y1="4.89955" x2="37.7772" y2="39.7345"
-                        gradientUnits="userSpaceOnUse">
-            <stop offset="0.15937" stop-color="#3BEA6"/>
-            <stop offset="0.5404" stop-color="#3C99CC"/>
-            <stop offset="0.93739" stop-color="#6B57FF"/>
+        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#6c707c;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#9b87a7;stop-opacity:1" />
         </linearGradient>
     </defs>
+    <rect x="10" y="10" width="180" height="180" fill="url(#gradient1)" stroke="#FFFFFF" stroke-width="15" rx="20" ry="20"/>
+    <line x1="50" y1="90" x2="150" y2="90" stroke="#FFFFFF" stroke-width="15" stroke-linecap="round" />
+    <line x1="50" y1="130" x2="150" y2="130" stroke="#FFFFFF" stroke-width="15" stroke-linecap="round" />
 </svg>
