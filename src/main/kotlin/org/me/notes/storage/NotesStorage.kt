@@ -11,7 +11,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findDocument
-import com.intellij.refactoring.suggested.range
 import org.me.notes.actions.NoteLeaveNoteAction.Companion.activeInlay
 import org.me.notes.notes.Note
 import java.nio.file.Paths
@@ -117,18 +116,14 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
         }
 
         // clean ui
-        val fileEditor = FileEditorManagerEx.getInstanceEx(project).selectedEditor ?: return
-        val editor = EditorUtil.getEditorEx(fileEditor) ?: return
+        val editor = FileEditorManagerEx.getInstanceEx(project).allEditors.find {
+            val editor = EditorUtil.getEditorEx(it) ?: return@find false
+            return@find editor.virtualFile == note.virtualFile
+        } ?: return
 
-        val rangeMarker = note.rangeMarker
-        if (rangeMarker == null || !rangeMarker.isValid) return
-
-        editor.markupModel.allHighlighters.forEach {
-            if (it.range == rangeMarker.range) it.dispose()
-        }
-        editor.inlayModel.getAfterLineEndElementsInRange(rangeMarker.startOffset, rangeMarker.endOffset).forEach {
-            it.dispose()
-        }
+        EditorUtil.getEditorEx(editor)?.markupModel?.allHighlighters?.forEach { it.dispose() }
+        val document = note.virtualFile.findDocument() ?: return
+        EditorUtil.getEditorEx(editor)?.inlayModel?.getAfterLineEndElementsInRange(0, document.textLength - 1)?.forEach {it.dispose()}
 
         logger.debug("note was deleted: ${note.text}")
         state.changeNotesState()
@@ -147,6 +142,7 @@ class NotesStorage(val project: Project) : SimplePersistentStateComponent<NotesS
             val editor = EditorUtil.getEditorEx(it) ?: return@find false
             return@find editor.virtualFile == file
         } ?: return
+
         EditorUtil.getEditorEx(editor)?.markupModel?.allHighlighters?.forEach { it.dispose() }
         val document = file.findDocument() ?: return
         EditorUtil.getEditorEx(editor)?.inlayModel?.getAfterLineEndElementsInRange(0, document.textLength - 1)?.forEach {it.dispose()}
