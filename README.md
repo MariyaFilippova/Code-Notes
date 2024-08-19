@@ -1,5 +1,6 @@
-# IntelliJ Code Notes Plugin
+![pluginIcon](https://github.com/user-attachments/assets/52700721-1e24-4592-82f3-20016656c89a)
 
+# IntelliJ Code Notes Plugin
 ## Overview
 
 Select code and leave notes directly in the IDE with the Code Notes Plugin. Post your daily notes in Slack via the Notes bot.
