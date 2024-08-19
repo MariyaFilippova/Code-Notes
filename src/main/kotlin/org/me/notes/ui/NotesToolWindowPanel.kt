@@ -13,7 +13,6 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiManager
 import com.intellij.ui.EditorTextField
 import com.intellij.ui.PopupHandler
-import com.intellij.ui.SpinningProgressIcon
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.dsl.builder.Align
@@ -41,7 +40,6 @@ import javax.swing.tree.DefaultTreeCellRenderer
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION
 
-@Suppress("UnstableApiUsage")
 class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel(), Disposable {
     companion object {
         val pinIcon = createIcon("/icons/pin.svg")
@@ -52,7 +50,6 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel(), 
     var myTreeModel: DefaultTreeModel
 
     private val mySyncSlackButton = JButton(NotesBundle.message("notes.slack.post.in.slack"), slackIcon)
-    private val mySpinner = JBLabel(SpinningProgressIcon()).apply { isVisible = false }
 
     private val myNotesCodeTextArea: EditorTextField = object : EditorTextField(project, PLAIN_TEXT) {
         override fun createEditor(): EditorEx {
@@ -89,10 +86,7 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel(), 
 
         mySyncSlackButton.apply {
             addActionListener {
-                mySpinner.isVisible = true
-                postNotesIntoSlackBot(project) {
-                    mySpinner.isVisible = false
-                }
+                postNotesIntoSlackBot(project)
             }
         }
 
@@ -110,8 +104,7 @@ class NotesToolWindowPanel(private val project: Project) : BorderLayoutPanel(), 
         return panel {
             indent {
                 row {
-                    cell(mySyncSlackButton).align(Align.FILL)
-                    cell(mySpinner)
+                    cell(mySyncSlackButton).align(Align.CENTER)
                 }
             }
             row {

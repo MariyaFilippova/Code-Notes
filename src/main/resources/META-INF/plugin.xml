@@ -15,9 +15,12 @@
             <separator/>
             <add-to-group group-id="EditorGutterPopupMenu" anchor="before" relative-to-action="EditorToggleUseSoftWraps"/>
         </group>
+
+        <action id="org.me.notes.actions.NoteLeaveNote" class="org.me.notes.actions.NoteLeaveNoteAction">
+            <keyboard-shortcut first-keystroke="shift A" keymap="$default"/>
+        </action>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
-        <textEditorCustomizer implementation="org.me.notes.editor.NotesTextEditorCustomizer"/>
         <toolWindow anchor="right" id="Notes" doNotActivateOnStart="false"
                     factoryClass="org.me.notes.ui.NotesToolWindowFactory" icon="/META-INF/pluginIcon.svg"/>
         <highlightingPassFactory implementation="org.me.notes.editor.NotesHighlightingPassFactory"/>

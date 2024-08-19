@@ -12,7 +12,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findDocument
 import com.intellij.refactoring.suggested.range
-import org.me.notes.editor.NotesToolBar.Companion.activeInlay
+import org.me.notes.actions.NoteLeaveNoteAction.Companion.activeInlay
 import org.me.notes.notes.Note
 import java.nio.file.Paths
 

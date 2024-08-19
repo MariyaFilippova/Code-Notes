@@ -10,7 +10,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiManager
 import com.intellij.ui.EditorTextField
 import org.me.notes.NotesBundle
-import org.me.notes.editor.NotesToolBar.Companion.activeInlay
+import org.me.notes.actions.NoteLeaveNoteAction.Companion.activeInlay
 import org.me.notes.notes.File
 import org.me.notes.notes.Note
 import org.me.notes.storage.NotesStorage

@@ -4,6 +4,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.ImageLoader
 import com.intellij.util.queryParameters
 import com.intellij.util.ui.JBImageIcon
@@ -72,33 +73,33 @@ private suspend fun postMessage(message: String, token: String) {
     }
 }
 
-fun postNotesIntoSlackBot(project: Project, invokeOnCompletion: () -> Unit) {
+fun postNotesIntoSlackBot(project: Project) {
     coroutineScope.launch {
-        var token = SlackCredentialsHolder.getInstance().getToken()
-        if (token == null) {
-            token = exchangeCodeForToken()
+        withBackgroundProgress(project, "Posting notes into slack bot", cancellable = false) {
+            var token = SlackCredentialsHolder.getInstance().getToken()
             if (token == null) {
-                logger.error("Unable to exchange code for token")
-                return@launch
+                token = exchangeCodeForToken()
+                if (token == null) {
+                    logger.error("Unable to exchange code for token")
+                    return@withBackgroundProgress
+                }
+                SlackCredentialsHolder.getInstance().setToken(token)
             }
-            SlackCredentialsHolder.getInstance().setToken(token)
+            val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+            val currentTime = LocalDateTime.now().format(formatter)
+
+            val notes = NotesStorage.getInstance(project).notes.entries
+                .flatMap { it.value }
+                .filter { it.time.endsWith(currentTime) }
+                .sortedBy { it.time }
+
+            if (notes.isEmpty()) return@withBackgroundProgress
+
+            val title = "*Your notes for $currentTime in ${project.name}* :eyes:"
+            val message = notes.asFlow().map { it.getSlackMessage() }.toList().joinToString("\n")
+
+            postMessage("$title\n$message", token)
         }
-        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-        val currentTime = LocalDateTime.now().format(formatter)
-
-        val notes = NotesStorage.getInstance(project).notes.entries
-            .flatMap { it.value }
-            .filter { it.time.endsWith(currentTime) }
-            .sortedBy { it.time }
-
-        if (notes.isEmpty()) return@launch
-
-        val title = "*Your notes for $currentTime in ${project.name}* :eyes:"
-        val message = notes.asFlow().map { it.getSlackMessage() }.toList().joinToString("\n")
-
-        postMessage("$title\n$message", token)
-    }.invokeOnCompletion {
-        invokeOnCompletion()
     }
 }
 

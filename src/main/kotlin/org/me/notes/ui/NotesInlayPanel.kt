@@ -16,6 +16,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.EditorTextField
 import com.intellij.ui.JBColor
 import com.intellij.ui.RoundedLineBorder
+import com.intellij.ui.codeFloatingToolbar.CodeFloatingToolbar
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.JBEmptyBorder
 import com.intellij.util.ui.JBUI
@@ -31,7 +32,7 @@ import javax.swing.ScrollPaneConstants
 import kotlin.math.max
 import kotlin.math.min
 
-class NotesInlayPanel(val editor: Editor, val project: Project) : JPanel(), Disposable, DataProvider {
+class NotesInlayPanel(val editor: Editor, val project: Project, val enableFloatingToolBar: Boolean) : JPanel(), Disposable, DataProvider {
     companion object {
         const val ACTION_PLACE = "notes.inlay.panel"
     }
@@ -102,6 +103,7 @@ class NotesInlayPanel(val editor: Editor, val project: Project) : JPanel(), Disp
     }
 
     override fun dispose() {
+        CodeFloatingToolbar.temporarilyDisable(enableFloatingToolBar)
         removeAll()
     }
 
