@@ -21,8 +21,8 @@ Select code and leave notes directly in the IDE with the Code Notes Plugin. Post
 1. Select code.
 2. Press `shift A`.
 3. Leave your note and press `Enter`.
+![note](https://github.com/user-attachments/assets/b0bbc963-1660-4540-b0dd-e67e89fba4ce)
 
-![me](https://github.com/user-attachments/assets/4657b910-9142-4581-898f-a8f77a5102b2)
 
 ### Viewing Notes
 
