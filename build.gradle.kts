@@ -3,7 +3,7 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 plugins {
   id("java")
   id("org.jetbrains.kotlin.jvm") version "2.0.0"
-  id("org.jetbrains.intellij.platform") version "2.0.0-rc1"
+  id("org.jetbrains.intellij.platform") version "2.0.1"
 }
 
 // Configure project's dependencies
@@ -16,11 +16,11 @@ repositories {
 }
 
 group = "org.me"
-version = "1.0.0"
+version = "1.0.1"
 
 dependencies {
   intellijPlatform {
-    create("IU", "242.20224-EAP-CANDIDATE-SNAPSHOT", useInstaller = false)
+    create("IU", "243.15521-EAP-CANDIDATE-SNAPSHOT", useInstaller = false)
     testFramework(TestFrameworkType.Plugin.Java)
   }
   testImplementation("junit:junit:4.13.2")
@@ -36,15 +36,11 @@ intellijPlatform {
 
 tasks {
   withType<JavaCompile> {
-    sourceCompatibility = "17"
-    targetCompatibility = "17"
+    sourceCompatibility = "21"
+    targetCompatibility = "21"
   }
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
-  }
-
-  patchPluginXml {
-    sinceBuild.set("241")
+    kotlinOptions.jvmTarget = "21"
   }
 
   signPlugin {
