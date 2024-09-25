@@ -1,12 +1,12 @@
 package org.me.notes.ui
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys
 import com.intellij.openapi.actionSystem.PlatformDataKeys
-import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.impl.EditorImpl
@@ -85,8 +85,9 @@ class NotesInlayPanel(val editor: Editor, val project: Project, val enableFloati
         }
 
         val group = DefaultActionGroup(NoteSave(myTextArea, editor, project), NoteClose(myTextArea, editor))
-        val button = ActionToolbarImpl(ACTION_PLACE, group, true)
-            .apply { targetComponent = this }
+        val toolbar = ActionManager.getInstance().createActionToolbar(ACTION_PLACE, group, true)
+        val button = toolbar
+            .apply { targetComponent = this.component }
             .component.apply {
                 border = JBUI.Borders.empty()
                 background = myBackground
