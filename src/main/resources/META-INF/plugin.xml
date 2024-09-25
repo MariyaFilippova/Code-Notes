@@ -17,7 +17,7 @@
         </group>
 
         <action id="org.me.notes.actions.NoteLeaveNote" class="org.me.notes.actions.NoteLeaveNoteAction">
-            <keyboard-shortcut first-keystroke="shift A" keymap="$default"/>
+            <keyboard-shortcut first-keystroke="alt shift A" keymap="$default"/>
         </action>
     </actions>
     <extensions defaultExtensionNs="com.intellij">

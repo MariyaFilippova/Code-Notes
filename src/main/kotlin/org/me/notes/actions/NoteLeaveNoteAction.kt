@@ -25,6 +25,8 @@ class NoteLeaveNoteAction : DumbAwareAction() {
         val editor = e.getData(PlatformDataKeys.EDITOR) ?: return
         val project = e.getData(PlatformDataKeys.PROJECT) ?: return
 
+        if (!editor.selectionModel.hasSelection()) return
+
         myActiveSuggestionInlay.get(editor)?.dispose()
         createComponentInlay(editor, project)
     }
